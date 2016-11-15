@@ -5,7 +5,7 @@
   "scripts": {
     "go": "npm run watch && npm run dev",
     "deploy": "git push origin master && git push heroku master",
-    "dev": "NODE_ENV=development node --use_strict server.js",
+    "dev": "NODE_ENV=development node server.js",
     "name-project": "echo \"\\033[04mPlease enter project name (no spaces): \\033[0m\\033[32m\" && read project_name && sed '1 d' ./server.js > temp && mv temp ./server.js && echo \"global.PROJECT_NAME = '$project_name'\" | cat - server.js > temp && mv temp server.js",
     "killmongo": "bash kill.sh mongo",
     "postinstall": "touch ./config/secrets.js",
@@ -39,11 +39,11 @@
     "scss",
     "node"
   ],
-  "author": { 
-    "name" : "Travis Hubbard", 
-    "email" : "t3patterson@gmail.com",
-    "url" : "http://github.com/t3patterson"
-    },
+  "author": {
+    "name": "Travis Hubbard",
+    "email": "t3patterson@gmail.com",
+    "url": "http://github.com/t3patterson"
+  },
   "contributors": [
     {
       "name": "Justin Richards",
@@ -67,6 +67,8 @@
     "ejs": "^2.4.2",
     "express": "^4.14.0",
     "express-session": "^1.14.0",
+    "google-auth-library": "^0.9.9",
+    "googleapis": "^14.2.0",
     "jquery": "^3.0.0",
     "mongoose": "^4.5.3",
     "passport": "^0.3.2",

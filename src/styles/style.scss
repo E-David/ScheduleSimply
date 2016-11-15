@@ -1,3 +1,8 @@
+$primary-color: #1101AF;
+$accent-color: #FB9800;
+$bg-color: #FBEB00;
+$text-color: #ddd;
+
 * {
 	font-family: Helvetica, Arial, sans-serif;
 	box-sizing: border-box;
@@ -7,4 +12,84 @@ h1 {
 	font-size: 300px;
 	text-align: center;
 	color: fuchsia;
+}
+
+button, input, li {
+	font-size: 2rem;
+	padding: .5rem 1rem;
+	outline: none;
+}
+
+button, li,span {
+	color: $text-color;
+}
+
+li {
+	list-style: none;
+	text-align: left;
+	background: lighten($primary-color,20);
+	margin: 1rem 0;
+}
+
+ul {
+	padding: 0;
+	margin: 1rem 0;
+}
+
+input[type="text"]:focus {
+	outline: 3px solid $accent-color;
+	transition: .1s all ease;
+}
+body {
+	background: lighten($primary-color,20);
+}
+
+.todo-app {
+	max-width: 900px;
+	margin: 10% auto;
+	text-align: center;
+
+	.buttons {
+		button,button:focus {
+			border: 3px solid $accent-color;
+			border-bottom: none;
+			background: $primary-color;
+			margin: 0 1rem;
+			margin-bottom: -3px;
+			cursor: pointer;
+		}
+
+		button.active {
+			border-bottom: 3px solid $primary-color;
+		}
+	}
+
+	.todo-list {
+		border: 3px solid $accent-color;
+		background: $primary-color;
+		padding: 2rem;
+
+		ul {
+			li {
+				position: relative;
+				span {
+					line-height: 2rem;
+					display: inline-block;
+				}
+				span.checkbox {
+					position: absolute;
+					right: 1rem;
+					text-align: center;
+					width: 2rem;
+					height: 2rem;
+					border: 4px solid $accent-color;	
+					color: $accent-color;	
+					cursor: pointer;			
+				}
+				span.text {
+					left: 1rem;
+				}
+			}
+		}
+	}
 }

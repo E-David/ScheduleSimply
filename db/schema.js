@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const createModel = mongoose.model.bind(mongoose);
 const Schema = mongoose.Schema;
 
 // ----------------------
@@ -17,6 +16,12 @@ const usersSchema = new Schema({
 
 })
 
+const taskSchema = new Schema({
+	title: {type: String, required: true },
+	status: {type: String, required: true, default: 'incomplete'}
+})
+
 module.exports = {
-  User: createModel('User', usersSchema)
+  User: mongoose.model('User', usersSchema),
+  Task: mongoose.model('Task', taskSchema)
 }

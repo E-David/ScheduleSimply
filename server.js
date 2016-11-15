@@ -1,4 +1,4 @@
-global.PROJECT_NAME = null
+global.PROJECT_NAME = 'testing123'
 
 if (!global.PROJECT_NAME) { //« set by npm run init-dev »
 	throw new Error('no project name set. did you forget to run "npm run init-dev"?')
@@ -24,6 +24,7 @@ const connectToDB = require('./config/db-setup.js').connectToDB
 let indexRouter = require('./routes/indexRouter.js')
 let authRouter = require('./routes/authRouter.js')
 let apiRouter = require('./routes/apiRouter.js')
+let googleRouter = require('./routes/googleRouter.js')
 
 // Load DB User Model (for appAuthentication configuration)
 let User = require('./db/schema.js').User
@@ -69,6 +70,7 @@ app.use( appMiddleWare.parseQuery )
 app.use( '/', indexRouter )
 app.use( '/auth', authRouter )
 app.use( '/api', apiRouter )
+app.use( '/google', googleRouter )
 
 app.use(appMiddleWare.errorHandler);
 

@@ -1,15 +1,22 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Backbone from 'backbone'
-import init from './init'
+import TodoApp from './views/todoApp'
+import $ from 'jquery'
 
 
 const app = function() {
-  document.querySelector('.container').innerHTML = "<h1>Woah!</h1>"
+	const googleURL = 'https://accounts.google.com/o/oauth2/auth?scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.me%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&response_type=code&client_id=1036212817160-8v3ob7jeto9epb626iore5ided8q5fcr.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost.com%3A3000%2Fgoogle%2Fcalendar%2Fcode'
+	const qs = function(sel) {
+		return document.querySelector(sel)
+	}
+
+	qs(".container").innerHTML = 
+		`<a href="${googleURL}">		
+			<button>please work</button>
+		</a>`
+	// qs('button').addEventListener('click',function() {
+	// 	$.getJSON('/google/calendar').then((resp)=>console.log(resp))
+	// })
 }
 
-// x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..
-// NECESSARY FOR USER FUNCTIONALITY. DO NOT CHANGE. 
-export const app_name = init()
 app()
-// x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..
