@@ -33,5 +33,4 @@ const STORE = _.extend(Backbone.Events,{
 })
 
 STORE._initialize()
-
 export default STORE

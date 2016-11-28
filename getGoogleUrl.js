@@ -4,7 +4,8 @@ var OAuth2 = google.auth.OAuth2;
 
 var oauth2Client = new OAuth2(
   SECRETS.client_id,
-  SECRETS.client_secret
+  SECRETS.client_secret,
+  SECRETS.redirect_uris[0]
 );
 
 // generate a url that asks permissions for Google+ and Google Calendar scopes
