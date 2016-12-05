@@ -8,15 +8,10 @@ var oauth2Client = new OAuth2(
   SECRETS.redirect_uris[0]
 );
 
-// generate a url that asks permissions for Google+ and Google Calendar scopes
-var scopes = [
-  'https://www.googleapis.com/auth/plus.me',
-  'https://www.googleapis.com/auth/calendar'
-];
-
+// generate a url that asks permissions for Google Calendar scopes
 var url = oauth2Client.generateAuthUrl({
-	  // If you only need one scope you can pass it as string
-	  scope: scopes
-	})
+	  scope: 'https://www.googleapis.com/auth/calendar',
+	  access_type: 'offline'
+})
 
 console.log(url)

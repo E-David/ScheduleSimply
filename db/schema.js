@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 // ----------------------
 // USERS
 // ----------------------
-const usersSchema = new Schema({
+const usersSchema = new mongoose.Schema({
   // required for authentication: DO NOT TOUCH Or You May Get Punched
   email:     { type: String, required: true },
   password:  { type: String, required: true },
@@ -16,12 +15,13 @@ const usersSchema = new Schema({
 
 })
 
-const taskSchema = new Schema({
-	title: {type: String, required: true },
-	status: {type: String, required: true, default: 'incomplete'}
+const tasksSchema = new mongoose.Schema({
+  taskName:     { type: String, required: true },
+  taskLength:   { type: Number, required: true },
+  complete:     { type: Boolean, default: false }
 })
 
 module.exports = {
   User: mongoose.model('User', usersSchema),
-  Task: mongoose.model('Task', taskSchema)
+  Task: mongoose.model("Task", tasksSchema)
 }

@@ -1,68 +1,59 @@
-import Backbone from 'backbone'
-import STORE from './store'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import TodoApp from './views/todoApp'
-import $ from 'jquery'
-
+import Backbone from 'backbone'
+import init from './init'
+import ScheduleApp from "./views/scheduleApp"
+import EventCreateView from "./views/eventCreateView"
+import LoginView from "./views/loginView"
+import User from "./models/userModel"
+import $ from "jquery"
 
 const app = function() {
-	const googleURL = 'https://accounts.google.com/o/oauth2/auth?scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.me%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&response_type=code&client_id=509881380831-m7krgqqr2g77l1fe509duhaipi4jc4gf.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fgoogle%2Fcalendar%2Fcode'	
-	const qs = function(sel) {
-		return document.querySelector(sel)
-	}
 
-	var submitEvent = function(e) {
-		e.preventDefault()
-		$.getJSON(`/google/calendar/create?what=${e.target.what.value}&when=${e.target.when.value}&token=${localStorage.getItem('calendar_token')}`)
-			.then((resp)=>console.log(resp))
-	}
-	var creationForm = `
-		<form>
-			<input name="what" placeholder="event name">
-			<input name="when" type="datetime-local">
-			<button type="submit">submit</button>
-		</form>
-	`
-
-	var lynx = 
-		`<a href="#createEvent">create</a>
-		<a href="${googleURL}">		
-			<button>please work</button>
-		</a>`
-
-
-	var writeView = (content) => qs('.container').innerHTML = content
-
-	const CalendarRouter = Backbone.Router.extend({
+	const Router = Backbone.Router.extend({
 		routes: {
-			'createEvent': 'handleCreator',
+			"home": "handleHome",
+			'createEvent': 'handleCreateEvent',
 			'googleAccess/:token': 'setToken',
-			'*default': 'handleDefault'
+			'login': 'handleLogin',
+			"*default": "redirect"
 		},
-		handleCreator: function() {
-			writeView(creationForm)
-			qs('form').onsubmit = submitEvent
+		handleHome: function() {
+			ReactDOM.render(<ScheduleApp />, document.querySelector('.container'))
+		},
+		handleCreateEvent: function() {
+			ReactDOM.render(<EventCreateView />, document.querySelector('.container'))
 		},
 
-		handleDefault: function() {
-			writeView(lynx)
-
+		handleLogin: function() {
+			ReactDOM.render(<LoginView />, document.querySelector('.container'))
 		},
 
 		setToken: function(token) {
 			console.log('setting token')
 			localStorage.setItem('calendar_token',token)
 			$.getJSON(`/google/calendar/events?token=${token}`)
-				.then((resp)=>console.log(resp))
+				.then((resp)=>{
+						console.log(resp)
+						location.hash = "home"
+					}
+				)
 		},
-
-		initialize: function() {
+		redirect: function(){
+			location.hash = "home"
+		},
+		initialize: function(){
 			Backbone.history.start()
+			if(!User.getCurrentUser()){
+				location.hash = "login"
+			}
 		}
 	})
-
-	new CalendarRouter
+  new Router()
 }
 
+// x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..
+// NECESSARY FOR USER FUNCTIONALITY. DO NOT CHANGE. 
+export const app_name = init()
 app()
+// x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..x..

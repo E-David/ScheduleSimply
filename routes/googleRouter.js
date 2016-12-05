@@ -13,13 +13,13 @@ var oauth2Client = new OAuth2(
   SECRETS.redirect_uris[0]
 )
 
-'http://localhost:3000/google/calendar/code?code=123'
 googleRouter
 	.get('/calendar/code', function(req,res) {
 		var code = req.query.code
+		console.log("CODE",code)
 		oauth2Client.getToken(code, function (err, tokens) {
 		// Now tokens contains an access_token and an optional refresh_token. Save them.
-			console.log(tokens,err)
+			console.log("TOKENS",tokens)
 			if (!err) {
 				oauth2Client.setCredentials(tokens);
 			}
@@ -28,17 +28,22 @@ googleRouter
 		
 	})
 	.get('/calendar/events', function(req,res) {
-		var url = req.query.url
-		var token = req.query.token
-		console.log(token)
+		var url   = req.query.url,
+			token = req.query.token,
+			start = req.query.start,
+			end   = req.query.end
+
+		console.log("TOKEN",token)
 		oauth2Client.setCredentials({
 			access_token: token
 		})
 		calendar.events.list({
 				auth: oauth2Client,
 				calendarId: 'primary',
-				timeMin: (new Date()).toISOString(),
 				maxResults: 10,
+				//today's date supplied if none provided. Otherwise you get a bad request.
+				timeMin: start ? start : new Date().toISOString(),
+				timeMax: end ? end : new Date().toISOString(),
 				singleEvents: true,
 				orderBy: 'startTime'
 			}, function(err, response) {
@@ -61,11 +66,11 @@ googleRouter
 		  'summary': req.query.what,
 		  'start': {
 		    'dateTime': req.query.when + ':00',
-		    timeZone: 'America/Los_Angeles'
+		    timeZone: 'America/Chicago'
 		  },
 		  end: {
 		  	dateTime: req.query.when + ':30',
-		  	timeZone: 'America/Los_Angeles'
+		  	timeZone: 'America/Chicago'
 		  }
 		}
 
