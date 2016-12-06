@@ -16,9 +16,11 @@ const usersSchema = new mongoose.Schema({
 })
 
 const tasksSchema = new mongoose.Schema({
+  userId:       { type: String, required: true },
   taskName:     { type: String, required: true },
   taskLength:   { type: Number, required: true },
-  complete:     { type: Boolean, default: false }
+  complete:     { type: Boolean, default: false },
+  createdAt:    { type: Date, default: Date.now }
 })
 
 module.exports = {

@@ -61,15 +61,15 @@ googleRouter
 		oauth2Client.setCredentials({
 			access_token: req.query.token
 		})
-		console.log(req.query.when)
+		console.log(req.query)
 		var event = {
 		  'summary': req.query.what,
 		  'start': {
-		    'dateTime': req.query.when + ':00',
+		    'dateTime': req.query.start,
 		    timeZone: 'America/Chicago'
 		  },
 		  end: {
-		  	dateTime: req.query.when + ':30',
+		  	dateTime: req.query.end,
 		  	timeZone: 'America/Chicago'
 		  }
 		}

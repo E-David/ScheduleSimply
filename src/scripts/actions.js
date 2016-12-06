@@ -4,39 +4,66 @@ import User from "./models/userModel"
 import $ from 'jquery'
 
 const ACTIONS = {
+	//TODO: move to utils
+	addMinutes: function(date, minutes) {
+		return new Date(date.getTime() + minutes * 60000)
+	},
 	//add task to STORE and save to database. Added model triggers "update" for STORE re-render
 	addTask: function(userInputObj) {
-		var mod = new TaskModel(userInputObj)
-		mod.save()
-			.done(() => {
-				STORE._get("taskCollection").add(userInputObj)
-				STORE._emitChange()
-			})
-			.fail((err) => {
-				alert("Error when adding task")
-				console.log(err)
-			})
+		var newTaskAttrs = {
+			userId: User.getCurrentUser()._id,
+			taskName: userInputObj["taskName"],
+			taskLength: userInputObj["taskLength"]
+		}
+
+		if (ACTIONS.checkIfOverLimiter(userInputObj["taskLength"])){
+			alert(`Adding this task exceeds your limiter of ${STORE._get("scheduleLimiter")} minutes`)
+		} else {
+			var mod = new TaskModel(newTaskAttrs)
+			mod.save()
+				.done(() => {
+					STORE._get("taskCollection").add(newTaskAttrs)
+					STORE._emitChange()
+				})
+				.fail((err) => {
+					alert("Error when adding task")
+					console.log(err)
+				})
+		}
+	},
+	checkIfOverLimiter: function(newTaskLength) {
+		return ACTIONS.countTasksLength() + parseInt(newTaskLength) > STORE._get("scheduleLimiter")
 	},
 	countTasksLength: function(){
 		var coll = STORE._get("taskCollection")
 		var allTaskLength = coll.models.reduce((accumulator,taskModel) => {
-			return accumulator + taskModel.get("taskLength")
+			return accumulator + parseInt(taskModel.get("taskLength"))
 		},0)
 		return allTaskLength
 	},
-	createEvent: function(eventObj) {
-		console.log(eventObj)
-		// $.getJSON(`/google/calendar/create?what=${eventObj["whatEvent"]}&when=${eventObj["whenEvent"]}&token=${localStorage.getItem('calendar_token')}`)
-		// 	.then((resp)=>console.log(resp))
+	createEvent: function(eventTime) {
+		var startTime = new Date(eventTime["whenEvent"])
+		var endTime = ACTIONS.addMinutes(startTime,ACTIONS.countTasksLength())
+
+		$.getJSON(`/google/calendar/create?what=${eventTime["whatEvent"]}&start=${startTime.toISOString()}&end=${endTime.toISOString()}&token=${localStorage.getItem('calendar_token')}`)
+			.then(
+				function() {
+					alert(`Event scheduled on ${startTime.getMonth() % 12 + 1}/${startTime.getDate()}`)
+					STORE._set({
+						taskCollection: new TaskCollection()
+					})
+				},
+				function(err) {
+					alert("Error schedulding event")
+					console.log(err)
+				}
+			)
 	},
 	fetchAvailability: function(date) {
 		var startDate = new Date(date).setHours(0,0,0,0)
 	    var endDate = new Date(date).setHours(23,59,59,999)
 	    var start = new Date(startDate).toISOString()
 	    var end = new Date(endDate).toISOString()
-
-	    console.log("START: ",new Date(startDate).toISOString())
-	    console.log("END: ",new Date(endDate).toISOString())
 
 	    STORE._get("scheduledEventsCollection").fetch({
 	    	data: {
@@ -45,70 +72,65 @@ const ACTIONS = {
 	    		token: localStorage.getItem('calendar_token')
 	    	}
 	    }).done((resp)=> {
-	    	ACTIONS.getAvailableTimes()
+	    	ACTIONS.getAvailableTimes(date)
 	    	ACTIONS.getScheduledTimes()
 	    })
 	      .fail((err)=>console.log(err))
 	},
 	fetchTasks: function() {
-		STORE._get('taskCollection').fetch()
+		STORE._get('taskCollection').fetch({
+			data: {
+				userId: User.getCurrentUser()._id
+			}
+		})	 .done(()=> console.log(STORE._get('taskCollection')))
 			 .fail(()=> alert("Error fetching tasks"))
 	},
-	filterAvailableBlocks: function(array) {
+	//TODO: change this so you have the option to schedule up to start/end time.
+	//Ex: you have something at 7. You should be able to schedule something from 6:30-7
+	filterAvailableBlocks: function(scheduledEvents) {
 		var allTimes = STORE._get("availableTimes")
-		var busyTimes = array
+		var scheduledTimes = scheduledEvents
 		var filteredTimes = allTimes.filter((time)=> {
-			for(var i = 0; i < array.length; i++){
-				if(time.getMinutes()===array[i].getMinutes() &&
-					time.getHours()===array[i].getHours()){
+			for(var i = 0; i < scheduledTimes.length; i++){
+				if (time >= scheduledTimes[i].start && 
+					time <= scheduledTimes[i].end ||
+					time < new Date()){
 					return false
 				} 
 			}
 			return true
 		})
-		console.log(STORE._get("availableTimes").length)
 		STORE._set({
 			availableTimes: filteredTimes
 		})
-
-		console.log(STORE._get("availableTimes").length)
 	},
-	getAvailableTimes: function() {
-		var startDate = new Date(new Date().setHours(39,0,0,0))
-		var endDate = new Date().setHours(20,0,0,0)
+	getAvailableTimes: function(date) {
+		//Need to change this based on user preference
+		var startDate = new Date(new Date(date).setHours(15,0,0,0))
+		var endDate = new Date(date).setHours(20,0,0,0)
 		STORE._set({
 			availableTimes: this.getIncrements(startDate,endDate)
 		})
 	},
-	//TODO: FIX problem where today isn't capture by getDates()
 	getDates: function() {
-	    var now = new Date(),
-	        dateToGet = now,
+	    var dateToGet = new Date(),
 	        weekArr = []
-	    
-	    for(var i = 0; i < 8; i ++){
-	        var oldDate = dateToGet,
-	        	rawNewDate = oldDate.setDate(oldDate.getDate() + 1)
 
-	        weekArr.push(dateToGet)
-	        dateToGet = new Date(rawNewDate)
+	    for(var i = 0; i < 8; i ++){
+	    	//pushes copy of date Object, since the copy is not changed when setDate is used
+	        weekArr.push(new Date(dateToGet))
+	        dateToGet = new Date(dateToGet.setDate(dateToGet.getDate() + 1))
 	    }
 	    return weekArr
 	},
 	getIncrements: function(start,end) {
 	    var timeBlocksArr = []
-	        function addMinutes(date, minutes) {
-	        return new Date(date.getTime() + minutes*60000);
-	    }
+	    //TODO: move to utils
 	    while(start.getHours() <= new Date(end).getHours()) {
 	        timeBlocksArr.push(start)
-	    	start = addMinutes(start,30)
+	    	start = ACTIONS.addMinutes(start,30)
 	    }
 	    return timeBlocksArr
-	},
-	getScheduledBlocks: function(scheduledEvent){
-		console.log(getIncrements)
-		
 	},
 	getScheduledTimes: function() {
 		var scheduledColl = STORE._get("scheduledEventsCollection"),
@@ -116,12 +138,10 @@ const ACTIONS = {
 			eventsArr = scheduledColl.models[0].attributes.items
 
 			for(var i = 0; i < eventsArr.length; i++) {
-				// scheduledTimes.push({
-				// 	start: new Date(eventsArr[i].start.dateTime),
-				// 	end: new Date(eventsArr[i].end.dateTime)
-				// })
-				scheduledTimes.push(new Date(eventsArr[i].start.dateTime))
-				scheduledTimes.push(new Date(eventsArr[i].end.dateTime))
+				scheduledTimes.push({
+					start: new Date(eventsArr[i].start.dateTime),
+					end: new Date(eventsArr[i].end.dateTime)
+				})
 			}
 		return this.filterAvailableBlocks(scheduledTimes)
 	},
@@ -140,7 +160,6 @@ const ACTIONS = {
 		User.login(email,password)
 			.then(
 				function(resp){
-					alert(`Logged in as ${email}`)
 					window.location.replace(authUrl)
 				},
 				function(err){
@@ -154,7 +173,7 @@ const ACTIONS = {
 			.then(
 				function(){
 					alert("You have successfully logged out")
-					location.hash = "home"
+					location.hash = "login"
 					STORE._emitChange()
 				},
 				function(){
@@ -167,6 +186,7 @@ const ACTIONS = {
 			.then(
 				function(){
 					alert(`${userInputObj.email} has successfully registered`)
+					ACTIONS.loginUser(userInputObj.email,userInputObj.password)
 				},
 				function(err){
 					console.log(err)

@@ -19,6 +19,7 @@ button {
 	margin: 20px auto;
 	background-color: #6495ED;
 	color: white;
+	font-size: 24px;
 }
 button:hover {
 	background-color: lighten(#6495ED,10);
@@ -39,6 +40,17 @@ button:active {
 		border: 5px solid black;
 		text-align: center;
 		background-color:  #c0c0c0;
+		position: relative;
+		span {
+			font-size: 24px;
+			margin: 3% 0%;
+		}
+		.logout {
+			position: absolute;
+			top: 0;
+			right: 0;
+			margin: 0;
+		}
 			form {
 				margin: 10px auto 0px auto;
 				width: 80%;
@@ -78,15 +90,23 @@ button:active {
 				background-color: white;
 				padding: 0;
 				position: absolute;
-				top: 25%;
+				top: 20%;
 				left: 50%;
 				transform: translate(-50%,-50%);
 				z-index: 2;
-
-				.date-display {
+				.date-display{
 					display: inline-block;
 					width: 9%;
 					margin: 0;
+					button {
+						font-size: 14px;
+					}
+				}
+				.time-display {
+					button {
+						margin: 1% 2%;
+						font-size: 12px;
+					}
 				}
 			}
 			#darken-bg {
@@ -98,10 +118,12 @@ button:active {
 				top: 0;
 				left: 0;
 				z-index: 1;
+				opacity: 0.5;
 			}
 
 		.task-container {
 			margin-top: 10px;
+			margin-bottom: 20px;
 			width: 100%;
 			background-color:  #c0c0c0;
 			position: relative;
@@ -113,19 +135,22 @@ button:active {
 				display: table;
 				border: 0.5px solid black;
 				border-top: 0px;
-				span:first-child {
+				position: relative;
+				span{
 					font-size: 36px;
-					text-align: left;
-					display: table-cell;
-					overflow: none;
 					padding: 1% 2%;
 				}
-				span:last-child {
-					height: 50px;
-					width: 50px;
-					font-size: 36px;
-					text-align: center;
+				span:first-child {
 					display: table-cell;
+					text-align: left;
+				}
+				span:nth-child(2) {
+					float: right;
+				}
+				button {
+					position: absolute;
+					left: 101%;
+					font-size: 12px;
 				}
 
 			}
@@ -134,5 +159,21 @@ button:active {
 			}
 		}
 
+	}
+	.login-container{
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%,-50%);
+		background-color: #c0c0c0;
+		padding: 3%;
+	}
+	.register-container {
+		position: absolute;
+		top: 20%;
+		left: 50%;
+		transform: translate(-50%,-50%);
+		background-color: #c0c0c0;
+		padding: 3%;
 	}
 }
