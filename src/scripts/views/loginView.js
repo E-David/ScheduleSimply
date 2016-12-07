@@ -2,62 +2,17 @@ import React from "react"
 import ACTIONS from "../actions"
 
 const LoginView = React.createClass({
+	authUrl: "https://accounts.google.com/o/oauth2/auth?scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&access_type=offline&response_type=code&client_id=587179870005-4t54t2sn7peb3nf6rcpa6q92ottds8kq.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fgoogle%2Fcalendar%2Fcode",
+	_googleAuth: function(event) {
+		event.preventDefault()
+		window.location.replace(this.authUrl)
+	},
 	render: function() {
 		return (
 			<div className="login-view">
-				<LoginContainer />
-				<RegisterContainer />
-			</div>
-		)
-	}
-})
-
-const LoginContainer = React.createClass({
-	_handleSubmit: function(event) {
-		event.preventDefault()
-		var userEmail = event.target.email.value,
-			userPassword = event.target.password.value
-
-		ACTIONS.loginUser(userEmail,userPassword)
-		//clear fields after data is passed to ACTIONS
-		event.target.email.value = ""
-		event.target.password.value = ""
-	},
-	render: function() {
-		return (
-			<div className="login-container">
-				<h3>Login Here</h3>
-				<form onSubmit={this._handleSubmit}>
-					<input type="email" name="email" placeholder="Enter Email" />
-					<input type="password" name="password" placeholder="Enter Password" />
-					<button type="submit">Submit</button>
-				</form>
-			</div>
-		)
-	}
-})
-
-const RegisterContainer = React.createClass({
-	_handleSubmit: function(event) {
-		event.preventDefault()
-		var userInputObj = {
-			email: event.target.email.value,
-			password: event.target.password.value
-		}
-		ACTIONS.registerUser(userInputObj)
-		//clear fields after data is passed to ACTIONS
-		event.target.email.value = ""
-		event.target.password.value = ""
-	},
-	render: function() {
-		return (
-			<div className="register-container">
-				<h3>Register Here</h3>
-				<form onSubmit={this._handleSubmit}>
-					<input type="email" name="email" placeholder="Enter Email" />
-					<input type="password" name="password" placeholder="Enter Password" />
-					<button type="submit">Submit</button>
-				</form>
+				<h1>Schedule Me Now</h1>
+				<h3>Immediate scheduling made simple.</h3>
+				<button onClick={this._googleAuth}>Google Login</button>
 			</div>
 		)
 	}

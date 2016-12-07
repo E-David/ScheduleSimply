@@ -20,7 +20,7 @@ const ACTIONS = {
 	//add task to STORE and save to database. Added model triggers "update" for STORE re-render
 	addTask: function(userInputObj) {
 		//adds unique user id to task in order to show only user specific tasks
-		userInputObj["userId"] = User.getCurrentUser()._id
+		userInputObj["userName"] = UTILS.getCurrentUser()
 
 		var mod = new TaskModel(userInputObj)
 		mod.save()
@@ -84,9 +84,9 @@ const ACTIONS = {
 	fetchTasks: function() {
 		STORE._get('taskCollection').fetch({
 			data: {
-				userId: User.getCurrentUser()._id
+				userName: UTILS.getCurrentUser()
 			}
-		})	 .done(()=> console.log(STORE._get('taskCollection')))
+		})
 			 .fail(()=> alert("Error fetching tasks"))
 	},
 	//TODO: change this so you have the option to schedule up to start/end time.
@@ -158,46 +158,6 @@ const ACTIONS = {
 			taskArray.push(task)
 		}
 		return taskArray.join(", ")
-	},
-	loginUser: function(email,password) {
-		const authUrl = "https://accounts.google.com/o/oauth2/auth?scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&access_type=offline&response_type=code&client_id=587179870005-4t54t2sn7peb3nf6rcpa6q92ottds8kq.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fgoogle%2Fcalendar%2Fcode"
-		User.login(email,password)
-			.then(
-				function(resp){
-					console.log(resp)
-					window.location.replace(authUrl)
-				},
-				function(err){
-					console.log(err)
-					alert("An error occurred while logging in")
-				}
-			)
-	},
-	logoutUser: function() {
-		User.logout()
-			.then(
-				function(){
-					alert("You have successfully logged out")
-					location.hash = "login"
-					STORE._emitChange()
-				},
-				function(){
-					alert("An error occurred while logging out")
-				}
-			)
-	},
-	registerUser: function(userInputObj) {
-		User.register(userInputObj)
-			.then(
-				function(){
-					alert(`${userInputObj.email} has successfully registered`)
-					ACTIONS.loginUser(userInputObj.email,userInputObj.password)
-				},
-				function(err){
-					console.log(err)
-					alert("An error occured while registering")
-				}
-			)
 	},
 	removeTask: function(taskModel) {
 		taskModel.destroy()

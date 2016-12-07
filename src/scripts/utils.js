@@ -16,6 +16,12 @@ const UTILS = {
 		var minutes = date.getMinutes()
 		if(minutes === 0) minutes = minutes + "0"
 		return `${hours}:${minutes}`
+	},
+	getCurrentUser: function() {
+		return localStorage.getItem('userName')
+	},
+	logoutUser: function() {
+		localStorage.clear()
 	}
 }
 export default UTILS

@@ -6,6 +6,7 @@ import ScheduleApp from "./views/scheduleApp"
 import EventCreateView from "./views/eventCreateView"
 import LoginView from "./views/loginView"
 import User from "./models/userModel"
+import UTILS from "./utils"
 import $ from "jquery"
 
 const app = function() {
@@ -34,7 +35,8 @@ const app = function() {
 			localStorage.setItem('calendar_token',token)
 			$.getJSON(`/google/calendar/events?token=${token}`)
 				.then((resp)=>{
-						console.log(resp)
+						var userName = resp.summary
+						localStorage.setItem('userName',userName)
 						location.hash = "home"
 					}
 				)
@@ -44,7 +46,7 @@ const app = function() {
 		},
 		initialize: function(){
 			Backbone.history.start()
-			if(!User.getCurrentUser()){
+			if(!UTILS.getCurrentUser()){
 				location.hash = "login"
 			}
 		}
