@@ -2,7 +2,19 @@ import STORE from "./store"
 import {TaskCollection, TaskModel, scheduledEventsCollection} from "./models/dataModels"
 import User from "./models/userModel"
 import $ from 'jquery'
+/*TODO FROM PRESENTATION:
+drop down for task length in 5 minute increments
+add tasks, if it exceeds thirty, schedule everything but the last task
+user preferences for when you are available
+date-display: drop down
+time-display renders, drop down
+responsive web design
+potential old model; MAKE SURE IT DELETES
+refresh token***
+splash page over login view, give some details about the app
+no users, everything is tied o data you get back from gmail
 
+*/
 const ACTIONS = {
 	//TODO: move to utils
 	addMinutes: function(date, minutes) {
@@ -31,11 +43,16 @@ const ACTIONS = {
 				})
 		}
 	},
+	changeView: function(viewName) {
+		STORE._set({
+			currentTasks: viewName
+		})
+	},
 	checkIfOverLimiter: function(newTaskLength) {
 		return ACTIONS.countTasksLength() + parseInt(newTaskLength) > STORE._get("scheduleLimiter")
 	},
 	countTasksLength: function(){
-		var coll = STORE._get("taskCollection")
+		var coll = STORE._get("taskCollection").models.filter((mod)=>mod.get("scheduled") === false)
 		var allTaskLength = coll.models.reduce((accumulator,taskModel) => {
 			return accumulator + parseInt(taskModel.get("taskLength"))
 		},0)
@@ -48,13 +65,11 @@ const ACTIONS = {
 		$.getJSON(`/google/calendar/create?what=${eventTime["whatEvent"]}&start=${startTime.toISOString()}&end=${endTime.toISOString()}&token=${localStorage.getItem('calendar_token')}`)
 			.then(
 				function() {
-					alert(`Event scheduled on ${startTime.getMonth() % 12 + 1}/${startTime.getDate()}`)
-					STORE._set({
-						taskCollection: new TaskCollection()
-					})
+					alert(`Tasks scheduled on ${startTime.getMonth() % 12 + 1}/${startTime.getDate()}`)
+					ACTIONS.toggleScheduledStatus()
 				},
 				function(err) {
-					alert("Error schedulding event")
+					alert("Error scheduling event")
 					console.log(err)
 				}
 			)
@@ -205,6 +220,13 @@ const ACTIONS = {
 				 		console.log(err)
 				 	}
 				 )
+	},
+	toggleScheduledStatus: function() {
+		var coll = STORE._get("taskCollection")
+		coll.models.map((mod)=>mod.attributes.scheduled = true)
+		STORE._set({
+			coll: "taskCollection"
+		})
 	}
 }
 export default ACTIONS

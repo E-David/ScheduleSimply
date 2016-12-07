@@ -39,6 +39,13 @@ const ScheduleApp = React.createClass({
 		var bgStyle = {
 			display: allTasksLength >= STORE._get("scheduleLimiter") ? "block" : "none"
 		}
+		var tasksToRender = this.state.todoCollection
+	 	if (this.state.currentTasks === "Scheduled") {
+	 		tasksToRender = tasksToRender.filter(mod => mod.get('scheduled') === true)
+	 	}
+	 	if (this.state.currentTasks === "Unscheduled") {
+	 		tasksToRender = tasksToRender.filter(mod => mod.get('scheduled') === false)
+	 	}
 		return (
 			<div className="schedule-app">
 				<span>{`Welcome ${User.getCurrentUser().email}`}</span>
@@ -49,7 +56,8 @@ const ScheduleApp = React.createClass({
 					<button>Add Task</button>
 				</form>
 				<SchedulePopUp />
-				<TaskContainer collection={this.state.taskCollection} />
+				<Buttons currentTasks={this.state.currentTasks} />
+				<TaskContainer collection={tasksToRender} />
 				<div id="darken-bg" style={bgStyle} onClick={this._bgClick}></div>
 			</div>
 		)
@@ -113,6 +121,32 @@ const SchedulePopUp = React.createClass({
 				</div>
 			</div>
 		)
+	}
+})
+
+const Buttons = React.createClass({
+	_handleTabClick: function(eventObj) {
+		var buttonThatWasClicked = eventObj.target.value
+		ACTIONS.changeView(buttonThatWasClicked)
+	},
+
+	render: function() {
+
+		var nameToJSX = (buttonName, index) => {
+			return <button 
+					onClick={this._handleTabClick} 
+					value={buttonName} 
+					key={index}
+					className={this.props.currentTasks === buttonName ? 'active' : ''} >
+					{buttonName}
+					</button>
+		}
+		return (
+			<div className="buttons">
+				{/* map an array of button names into an array of jsx buttons */}
+				{["Unscheduled","Scheduled"].map(nameToJSX)}
+			</div>
+			)
 	}
 })
 
