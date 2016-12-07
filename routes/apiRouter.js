@@ -73,6 +73,7 @@ let Task = require('../db/schema.js').Task
 
     //delete one task
     .delete("/tasks/:_id", function(req, res){
+      console.log(req.params._id)
       Task.remove({ _id: req.params._id}, (err) => {
         if(err) {
           res.status(400).send(err)

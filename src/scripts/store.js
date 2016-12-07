@@ -9,7 +9,7 @@ const STORE = _.extend(Backbone.Events,{
 		scheduleLimiter: 30,
 		scheduledEventsCollection: new ScheduledEventsCollection(),
 		availableTimes: undefined,
-		currentTasks: "Unscheduled"
+		currentView: "Unscheduled"
 	},
 	_emitChange: function() {
 		this.trigger("storeChange")

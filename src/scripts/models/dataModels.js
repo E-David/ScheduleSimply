@@ -4,7 +4,7 @@ export const TaskModel =  Backbone.Model.extend({
 	urlRoot: "/api/tasks",
 	idAttribute: "_id",
 	defaults: {
-		complete: false
+		taskStatus: "unscheduled"
 	}
 })
 

@@ -14,6 +14,7 @@ const ScheduleApp = React.createClass({
 	componentWillMount: function() {
 		STORE.on("storeChange", ()=> {
 			this.setState(STORE._getData())
+			console.log("IN WILLMOUNT:",this.state.taskCollection)
 		})
 		ACTIONS.fetchTasks()
 	},
@@ -35,7 +36,7 @@ const ScheduleApp = React.createClass({
 		event.target.taskLength.value = ""
 	},
 	_viewToRender: function(coll) {
-		var currentView = this.state.currentTasks
+		var currentView = this.state.currentView
 		if(currentView === "Scheduled") {
 			return coll.filter(mod => mod.get('taskStatus') === "scheduled")
 		} else if(currentView === "Completed") {
@@ -163,7 +164,8 @@ const TaskContainer = React.createClass({
 })
 
 const Task = React.createClass({
-	_removeTask: function() {
+	_removeTask: function(event) {
+		event.preventDefault()
 		ACTIONS.removeTask(this.props.model)
 	},
 	render: function(){

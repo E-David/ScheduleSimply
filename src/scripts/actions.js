@@ -13,7 +13,6 @@ responsive web design
 potential old model; MAKE SURE IT DELETES
 refresh token***
 splash page over login view, give some details about the app
-no users, everything is tied o data you get back from gmail
 
 */
 const ACTIONS = {
@@ -24,8 +23,8 @@ const ACTIONS = {
 
 		var mod = new TaskModel(userInputObj)
 		mod.save()
-			.done(() => {
-				STORE._get("taskCollection").add(userInputObj)
+			.done((resp) => {
+				STORE._get("taskCollection").add(mod)
 			})
 			.fail((err) => {
 				alert("Error when adding task")
@@ -34,7 +33,7 @@ const ACTIONS = {
 	},
 	changeView: function(viewName) {
 		STORE._set({
-			currentTasks: viewName
+			currentView: viewName
 		})
 	},
 	checkIfOverLimiter: function(newTaskLength) {
@@ -79,14 +78,17 @@ const ACTIONS = {
 	    	ACTIONS.getAvailableTimes(date)
 	    	ACTIONS.getScheduledTimes()
 	    })
-	      .fail((err)=>console.log(err))
+	      .fail((err)=> {
+	      	alert("Error retrieving tasks")
+	      	console.log(err)
+	    })
 	},
 	fetchTasks: function() {
 		STORE._get('taskCollection').fetch({
 			data: {
 				userName: UTILS.getCurrentUser()
 			}
-		})
+		})	 .done(()=> console.log("FETCHTASKS COMPLETE",STORE._get('taskCollection')))
 			 .fail(()=> alert("Error fetching tasks"))
 	},
 	//TODO: change this so you have the option to schedule up to start/end time.
@@ -161,15 +163,10 @@ const ACTIONS = {
 	},
 	removeTask: function(taskModel) {
 		taskModel.destroy()
-				 .then(
-				 	function(){
-				 		alert("Task removed")
-				 	},
-				 	function(err){
-				 		alert("Error when removing task")
-				 		console.log(err)
-				 	}
-				 )
+				 .fail((err) => {
+				 	alert("Error when removing task")
+				 	console.log(err)
+				 })
 	},
 	toggleScheduledStatus: function() {
 		var coll = STORE._get("taskCollection")
