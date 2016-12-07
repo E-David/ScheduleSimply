@@ -2,6 +2,7 @@ import STORE from "./store"
 import {TaskCollection, TaskModel, scheduledEventsCollection} from "./models/dataModels"
 import User from "./models/userModel"
 import $ from 'jquery'
+import UTILS from "./utils"
 /*TODO FROM PRESENTATION:
 drop down for task length in 5 minute increments
 add tasks, if it exceeds thirty, schedule everything but the last task
@@ -16,32 +17,20 @@ no users, everything is tied o data you get back from gmail
 
 */
 const ACTIONS = {
-	//TODO: move to utils
-	addMinutes: function(date, minutes) {
-		return new Date(date.getTime() + minutes * 60000)
-	},
 	//add task to STORE and save to database. Added model triggers "update" for STORE re-render
 	addTask: function(userInputObj) {
-		var newTaskAttrs = {
-			userId: User.getCurrentUser()._id,
-			taskName: userInputObj["taskName"],
-			taskLength: userInputObj["taskLength"]
-		}
+		//adds unique user id to task in order to show only user specific tasks
+		userInputObj["userId"] = User.getCurrentUser()._id
 
-		if (ACTIONS.checkIfOverLimiter(userInputObj["taskLength"])){
-			alert(`Adding this task exceeds your limiter of ${STORE._get("scheduleLimiter")} minutes`)
-		} else {
-			var mod = new TaskModel(newTaskAttrs)
-			mod.save()
-				.done(() => {
-					STORE._get("taskCollection").add(newTaskAttrs)
-					STORE._emitChange()
-				})
-				.fail((err) => {
-					alert("Error when adding task")
-					console.log(err)
-				})
-		}
+		var mod = new TaskModel(userInputObj)
+		mod.save()
+			.done(() => {
+				STORE._get("taskCollection").add(userInputObj)
+			})
+			.fail((err) => {
+				alert("Error when adding task")
+				console.log(err)
+			})
 	},
 	changeView: function(viewName) {
 		STORE._set({
@@ -52,7 +41,7 @@ const ACTIONS = {
 		return ACTIONS.countTasksLength() + parseInt(newTaskLength) > STORE._get("scheduleLimiter")
 	},
 	countTasksLength: function(){
-		var coll = STORE._get("taskCollection").models.filter((mod)=>mod.get("scheduled") === false)
+		var coll = STORE._get("taskCollection")
 		var allTaskLength = coll.models.reduce((accumulator,taskModel) => {
 			return accumulator + parseInt(taskModel.get("taskLength"))
 		},0)
@@ -60,7 +49,7 @@ const ACTIONS = {
 	},
 	createEvent: function(eventTime) {
 		var startTime = new Date(eventTime["whenEvent"])
-		var endTime = ACTIONS.addMinutes(startTime,ACTIONS.countTasksLength())
+		var endTime = UTILS.addMinutes(startTime,ACTIONS.countTasksLength())
 
 		$.getJSON(`/google/calendar/create?what=${eventTime["whatEvent"]}&start=${startTime.toISOString()}&end=${endTime.toISOString()}&token=${localStorage.getItem('calendar_token')}`)
 			.then(
@@ -143,7 +132,7 @@ const ACTIONS = {
 	    //TODO: move to utils
 	    while(start.getHours() <= new Date(end).getHours()) {
 	        timeBlocksArr.push(start)
-	    	start = ACTIONS.addMinutes(start,30)
+	    	start = UTILS.addMinutes(start,30)
 	    }
 	    return timeBlocksArr
 	},
@@ -175,6 +164,7 @@ const ACTIONS = {
 		User.login(email,password)
 			.then(
 				function(resp){
+					console.log(resp)
 					window.location.replace(authUrl)
 				},
 				function(err){

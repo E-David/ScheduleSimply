@@ -19,7 +19,7 @@ const tasksSchema = new mongoose.Schema({
   userId:       { type: String, required: true },
   taskName:     { type: String, required: true },
   taskLength:   { type: Number, required: true },
-  scheduled:    { type: Boolean, default: false },
+  taskStatus:   { type: String, default: "unscheduled" },
   createdAt:    { type: Date, default: Date.now }
 })
 

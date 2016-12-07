@@ -2,10 +2,10 @@ import React from "react"
 import STORE from "../store"
 import ACTIONS from "../actions"
 import User from "../models/userModel"
-
-const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+import UTILS from "../utils"
 
 const ScheduleApp = React.createClass({
+	//refactor
 	_bgClick: function() {
 		document.querySelector("#darken-bg").style.display = "none"
 		document.querySelector(".schedule-pop-up").style.display = "none"
@@ -33,19 +33,23 @@ const ScheduleApp = React.createClass({
 		event.target.taskName.value = ""
 		event.target.taskLength.value = ""
 	},
+	_viewToRender: function(coll) {
+		var currentView = this.state.currentTasks
+		if(currentView === "Scheduled") {
+			return coll.filter(mod => mod.get('taskStatus') === "scheduled")
+		} else if(currentView === "Completed") {
+			return coll.filter(mod => mod.get('taskStatus') === "completed")
+		} else {
+			return coll.filter(mod => mod.get('taskStatus') === "unscheduled")
+		}
+	},
 	render: function() {
 		var allTasksLength = ACTIONS.countTasksLength()
-		console.log(allTasksLength >= STORE._get("scheduleLimiter"))
 		var bgStyle = {
 			display: allTasksLength >= STORE._get("scheduleLimiter") ? "block" : "none"
 		}
-		var tasksToRender = this.state.todoCollection
-	 	if (this.state.currentTasks === "Scheduled") {
-	 		tasksToRender = tasksToRender.filter(mod => mod.get('scheduled') === true)
-	 	}
-	 	if (this.state.currentTasks === "Unscheduled") {
-	 		tasksToRender = tasksToRender.filter(mod => mod.get('scheduled') === false)
-	 	}
+		var tasksToRender = this._viewToRender(this.state.taskCollection)
+
 		return (
 			<div className="schedule-app">
 				<span>{`Welcome ${User.getCurrentUser().email}`}</span>
@@ -70,9 +74,9 @@ const SchedulePopUp = React.createClass({
 		if(times){
 			var formattedTimes = times.map((time)=>{
 				return (
-						<button onClick={this._handleSubmitEvent} value={time} name="when">
-							{this._formatTime(time)}
-						</button>
+					<button onClick={this._handleSubmitEvent} value={time} name="when">
+						{UTILS._formatTime(time)}
+					</button>
 				)
 			})
 			return formattedTimes
@@ -90,15 +94,6 @@ const SchedulePopUp = React.createClass({
 		}
 		ACTIONS.createEvent(eventDetailsObj)
 	},
-	_formatDate: function(date) {
-		return `${DAYS[date.getDay()]}: ${date.getMonth() % 12 + 1}/${date.getDate()}`
-	},
-	_formatTime: function(time) {
-		var hours = time.getHours() % 12
-		var minutes = time.getMinutes()
-		if(minutes === 0) minutes = minutes + "0"
-		return `${hours}:${minutes}`
-	},
 	render: function(){
 		var allTasksLength = ACTIONS.countTasksLength()
 		var popUpStyle = {
@@ -107,11 +102,13 @@ const SchedulePopUp = React.createClass({
 		var dateToJsx= (date, index) => {
 			return (
 				<div className="date-display" key={index} name="dayToSchedule">
-					<button name="DAY" value={date} onClick={this._handleSelectDay}>{this._formatDate(date)}</button>
+					<button value={date} 
+							onClick={this._handleSelectDay}>
+							{UTILS.formatDate(date)}
+					</button>
 				</div>
 			)
 		}
-
 		return (
 			<div className="schedule-pop-up" style={popUpStyle}>
 				<p>Schedule your block of tasks now</p>
@@ -126,12 +123,10 @@ const SchedulePopUp = React.createClass({
 
 const Buttons = React.createClass({
 	_handleTabClick: function(eventObj) {
-		var buttonThatWasClicked = eventObj.target.value
-		ACTIONS.changeView(buttonThatWasClicked)
+		var tabClicked = eventObj.target.value
+		ACTIONS.changeView(tabClicked)
 	},
-
 	render: function() {
-
 		var nameToJSX = (buttonName, index) => {
 			return <button 
 					onClick={this._handleTabClick} 
@@ -144,9 +139,9 @@ const Buttons = React.createClass({
 		return (
 			<div className="buttons">
 				{/* map an array of button names into an array of jsx buttons */}
-				{["Unscheduled","Scheduled"].map(nameToJSX)}
+				{["Unscheduled","Scheduled","Completed"].map(nameToJSX)}
 			</div>
-			)
+		)
 	}
 })
 
