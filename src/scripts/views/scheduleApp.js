@@ -4,7 +4,6 @@ import ACTIONS from "../actions"
 import User from "../models/userModel"
 import UTILS from "../utils"
 
-console.log(UTILS.getCurrentUser())
 const ScheduleApp = React.createClass({
 	//refactor
 	_bgClick: function() {
@@ -58,7 +57,9 @@ const ScheduleApp = React.createClass({
 				<button className="logout" onClick={UTILS.logoutUser}>Logout</button>
 				<form onSubmit={this._handleSubmit}>
 					<input name="taskName"  placeholder="Enter task here" />
-					<input type="number" min="0" max="30" name="taskLength" placeholder="Length" />
+					<select name="taskLength" placeholder="Length">
+						<option value="0">0</option>
+					</select>
 					<button>Add Task</button>
 				</form>
 				<SchedulePopUp />

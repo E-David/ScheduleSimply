@@ -12,7 +12,6 @@ time-display renders, drop down
 responsive web design
 potential old model; MAKE SURE IT DELETES
 refresh token***
-splash page over login view, give some details about the app
 
 */
 const ACTIONS = {
