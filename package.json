@@ -70,6 +70,7 @@
     "google-auth-library": "^0.9.9",
     "googleapis": "^14.2.0",
     "jquery": "^3.0.0",
+    "materialize-css": "^0.97.8",
     "mongoose": "^4.5.3",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",

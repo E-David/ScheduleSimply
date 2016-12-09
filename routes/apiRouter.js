@@ -71,6 +71,19 @@ let Task = require('../db/schema.js').Task
       })
     })
 
+    //update one task
+    .put("/tasks/:_id", function(req,res){
+      Task.findByIdAndUpdate(req.params._id, req.body, {new: true}, function(err, record){
+        if(err){
+          res.status(500).send(err)
+        } else if (!record) {
+          res.status(400).send("no record found with that id")
+        } else {
+          res.json(record)
+        }
+      })
+    })
+
     //delete one task
     .delete("/tasks/:_id", function(req, res){
       console.log(req.params._id)

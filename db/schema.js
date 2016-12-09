@@ -20,6 +20,7 @@ const tasksSchema = new mongoose.Schema({
   taskName:     { type: String, required: true },
   taskLength:   { type: Number, required: true },
   taskStatus:   { type: String },
+  scheduledDate:{ type: Date },
   createdAt:    { type: Date, default: Date.now }
 })
 

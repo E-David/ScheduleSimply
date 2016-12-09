@@ -4,15 +4,11 @@ import User from "./models/userModel"
 import $ from 'jquery'
 import UTILS from "./utils"
 /*TODO FROM PRESENTATION:
-drop down for task length in 5 minute increments
 add tasks, if it exceeds thirty, schedule everything but the last task
 user preferences for when you are available
-date-display: drop down
-time-display renders, drop down
 responsive web design
-potential old model; MAKE SURE IT DELETES
 refresh token***
-
+WHEN TO CHECK??
 */
 const ACTIONS = {
 	//add task to STORE and save to database. Added model triggers "update" for STORE re-render
@@ -20,40 +16,103 @@ const ACTIONS = {
 		//adds unique user id to task in order to show only user specific tasks
 		userInputObj["userName"] = UTILS.getCurrentUser()
 
-		var mod = new TaskModel(userInputObj)
-		mod.save()
+		var taskModel = new TaskModel(userInputObj)
+		taskModel.save()
 			.done((resp) => {
-				STORE._get("taskCollection").add(mod)
+				STORE._get("taskCollection").add(taskModel)
+				ACTIONS.countTasksToBeScheduled()
 			})
 			.fail((err) => {
 				alert("Error when adding task")
 				console.log(err)
 			})
 	},
+	changeTasksToScheduled: function(date) {
+		//Possible do where you provide the status to update to
+		var  toBeScheduledArr = STORE._get("tasksToBeScheduled")
+
+		for(var i = 0; i < toBeScheduledArr.length; i++){
+			var taskModel = toBeScheduledArr[i]
+
+			taskModel.set({
+				taskStatus: "scheduled",
+				scheduledDate: date
+			})
+
+			taskModel.save()
+				 	 .fail((err)=>{
+				 		alert("Error when updating task")
+				 		console.log(err)
+				 	  })
+		}
+
+		STORE._set({
+			taskCollection: coll,
+			tasksToBeScheduled: []
+		})
+	},
 	changeView: function(viewName) {
 		STORE._set({
 			currentView: viewName
 		})
 	},
-	checkIfOverLimiter: function(newTaskLength) {
-		return ACTIONS.countTasksLength() + parseInt(newTaskLength) > STORE._get("scheduleLimiter")
-	},
-	countTasksLength: function(){
-		var coll = STORE._get("taskCollection")
-		var allTaskLength = coll.models.reduce((accumulator,taskModel) => {
-			return accumulator + parseInt(taskModel.get("taskLength"))
-		},0)
-		return allTaskLength
+	// checkIfOverLimiter: function() {
+	// 	var taskCount = ACTIONS.countUnscheduledTasksLength(),
+	// 		limiter = STORE._get("scheduleLimiter")
+
+	// 	if (taskCount === limiter ){
+	// 		STORE._set("showPopUp",true)
+	// 	} else if (taskCount > limiter) {
+	// 		ACTIONS.removeTaskOverflow()
+	// 		STORE._set("showPopUp",true)
+	// 	} else {
+	// 		STORE._set("showPopUp",false)
+	// 	}
+	// 	console.log(ACTIONS.countUnscheduledTasksLength())
+	// },
+	// countUnscheduledTasksLength: function(){
+	// 	var unscheduledColl = ACTIONS.filterUnscheduledTasks()
+	// 	var unscheduledTasksLength = unscheduledColl.reduce((accumulator,taskModel,index) => {
+	// 		console.log(accumulator,index)
+	// 		return accumulator + taskModel.get("taskLength")
+	// 	},0)
+	// 	return unscheduledTasksLength
+	// },
+	countTasksToBeScheduled: function() {
+		var coll = STORE._get("taskCollection"),
+			limiter = STORE._get("scheduleLimiter"),
+			lengthIfTaskAdded = 0,
+			toBeScheduledArr = []
+
+		for(var i = 0; i < coll.models.length; i++){
+			lengthIfTaskAdded += coll.models[i].get("taskLength")
+
+			if(lengthIfTaskAdded > limiter) {
+				return STORE._set({
+					showPopUp: true,
+					tasksToBeScheduled: toBeScheduledArr
+				})
+			} else if (lengthIfTaskAdded === limiter) {
+				toBeScheduledArr.push(coll.models[i])
+				return STORE._set({
+					showPopUp: true,
+					tasksToBeScheduled: toBeScheduledArr
+				})
+			} else {
+				toBeScheduledArr.push(coll.models[i])
+			}
+		}
+		STORE._set("tasksToBeScheduled",toBeScheduledArr)
 	},
 	createEvent: function(eventTime) {
 		var startTime = new Date(eventTime["whenEvent"])
-		var endTime = UTILS.addMinutes(startTime,ACTIONS.countTasksLength())
+		var endTime = UTILS.addMinutes(startTime,STORE._get("scheduleLimiter"))
 
 		$.getJSON(`/google/calendar/create?what=${eventTime["whatEvent"]}&start=${startTime.toISOString()}&end=${endTime.toISOString()}&token=${localStorage.getItem('calendar_token')}`)
 			.then(
 				function() {
 					alert(`Tasks scheduled on ${startTime.getMonth() % 12 + 1}/${startTime.getDate()}`)
-					ACTIONS.toggleScheduledStatus()
+					ACTIONS.changeTasksToScheduled()
 				},
 				function(err) {
 					alert("Error scheduling event")
@@ -62,15 +121,15 @@ const ACTIONS = {
 			)
 	},
 	fetchAvailability: function(date) {
-		var startDate = new Date(date).setHours(0,0,0,0)
-	    var endDate = new Date(date).setHours(23,59,59,999)
-	    var start = new Date(startDate).toISOString()
-	    var end = new Date(endDate).toISOString()
+		var startOfDayRaw = new Date(date).setHours(0,0,0,0),
+			startOfDay 	  = new Date(startOfDayRaw).toISOString(),
+	    	endOfDayRaw   = new Date(date).setHours(23,59,59,999),
+	    	endOfDay 	  = new Date(endOfDayRaw).toISOString()
 
 	    STORE._get("scheduledEventsCollection").fetch({
 	    	data: {
-	    		start: start,
-	    		end: end,
+	    		start: startOfDay,
+	    		end: endOfDay,
 	    		token: localStorage.getItem('calendar_token')
 	    	}
 	    }).done((resp)=> {
@@ -87,7 +146,7 @@ const ACTIONS = {
 			data: {
 				userName: UTILS.getCurrentUser()
 			}
-		})	 .done(()=> console.log("FETCHTASKS COMPLETE",STORE._get('taskCollection')))
+		})	 .done(()=> ACTIONS.countTasksToBeScheduled())
 			 .fail(()=> alert("Error fetching tasks"))
 	},
 	//TODO: change this so you have the option to schedule up to start/end time.
@@ -109,38 +168,23 @@ const ACTIONS = {
 			availableTimes: filteredTimes
 		})
 	},
+	// filterUnscheduledTasks: function() {
+	// 	var coll = STORE._get("taskCollection")
+	// 	return coll.filter((mod) => mod.get("taskStatus") === "unscheduled")
+	// },
 	getAvailableTimes: function(date) {
 		//Need to change this based on user preference
 		var startDate = new Date(new Date(date).setHours(15,0,0,0))
 		var endDate = new Date(date).setHours(20,0,0,0)
 		STORE._set({
-			availableTimes: this.getIncrements(startDate,endDate)
+			availableTimes: UTILS.getThirtyMinIncrements(startDate,endDate)
 		})
 	},
-	getDates: function() {
-	    var dateToGet = new Date(),
-	        weekArr = []
-
-	    for(var i = 0; i < 8; i ++){
-	    	//pushes copy of date Object, since the copy is not changed when setDate is used
-	        weekArr.push(new Date(dateToGet))
-	        dateToGet = new Date(dateToGet.setDate(dateToGet.getDate() + 1))
-	    }
-	    return weekArr
-	},
-	getIncrements: function(start,end) {
-	    var timeBlocksArr = []
-	    //TODO: move to utils
-	    while(start.getHours() <= new Date(end).getHours()) {
-	        timeBlocksArr.push(start)
-	    	start = UTILS.addMinutes(start,30)
-	    }
-	    return timeBlocksArr
-	},
 	getScheduledTimes: function() {
+		console.log(STORE._get("scheduledEventsCollection"))
 		var scheduledColl = STORE._get("scheduledEventsCollection"),
 			scheduledTimes = [],
-			eventsArr = scheduledColl.models[0].attributes.items
+			eventsArr = scheduledColl.models[0].get("items")
 
 			for(var i = 0; i < eventsArr.length; i++) {
 				scheduledTimes.push({
@@ -150,15 +194,19 @@ const ACTIONS = {
 			}
 		return this.filterAvailableBlocks(scheduledTimes)
 	},
-	getTasksArray: function() {
-		var coll = STORE._get("taskCollection"),
+	getTasksToScheduleString: function() {
+		var toBeScheduledArr = STORE._get("tasksToBeScheduled"),
 			taskArray = []
 
-		for(var i = 0; i < coll.models.length; i++) {
-			var task = coll.models[i].get("taskName")
+		for(var i = 0; i < toBeScheduledArr.length; i++) {
+			var task = toBeScheduledArr[i].get("taskName")
 			taskArray.push(task)
 		}
 		return taskArray.join(", ")
+	},
+	logoutUser: function() {
+		localStorage.clear()
+		location.hash = "login"
 	},
 	removeTask: function(taskModel) {
 		taskModel.destroy()
@@ -166,13 +214,6 @@ const ACTIONS = {
 				 	alert("Error when removing task")
 				 	console.log(err)
 				 })
-	},
-	toggleScheduledStatus: function() {
-		var coll = STORE._get("taskCollection")
-		coll.models.map((mod)=>mod.attributes.scheduled = true)
-		STORE._set({
-			coll: "taskCollection"
-		})
 	}
 }
 export default ACTIONS

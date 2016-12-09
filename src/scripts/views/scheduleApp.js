@@ -3,17 +3,15 @@ import STORE from "../store"
 import ACTIONS from "../actions"
 import User from "../models/userModel"
 import UTILS from "../utils"
+import $ from 'jquery'
 
 const ScheduleApp = React.createClass({
-	//refactor
 	_bgClick: function() {
-		document.querySelector("#darken-bg").style.display = "none"
-		document.querySelector(".schedule-pop-up").style.display = "none"
+		STORE._set("showPopUp",false)
 	},
 	componentWillMount: function() {
 		STORE.on("storeChange", ()=> {
 			this.setState(STORE._getData())
-			console.log("IN WILLMOUNT:",this.state.taskCollection)
 		})
 		ACTIONS.fetchTasks()
 	},
@@ -34,6 +32,15 @@ const ScheduleApp = React.createClass({
 		event.target.taskName.value = ""
 		event.target.taskLength.value = ""
 	},
+	_dropdownOptionsToRender: function() {
+		var i = 0,
+			optionsHtmlArr = []
+		while(i <= this.state.scheduleLimiter){
+			optionsHtmlArr.push(<option value={i} key={i}>{i}</option>)
+			i += 5
+		}
+		return optionsHtmlArr
+	},
 	_viewToRender: function(coll) {
 		var currentView = this.state.currentView
 		if(currentView === "Scheduled") {
@@ -45,44 +52,49 @@ const ScheduleApp = React.createClass({
 		}
 	},
 	render: function() {
-		var allTasksLength = ACTIONS.countTasksLength()
-		var bgStyle = {
-			display: allTasksLength >= STORE._get("scheduleLimiter") ? "block" : "none"
+		var popUpStyle = {
+			visibility: this.state.showPopUp ? "visible" : "hidden"
 		}
 		var tasksToRender = this._viewToRender(this.state.taskCollection)
-
 		return (
 			<div className="schedule-app">
 				<span>{`Welcome ${UTILS.getCurrentUser()}`}</span>
-				<button className="logout" onClick={UTILS.logoutUser}>Logout</button>
+				<button className="logout" onClick={ACTIONS.logoutUser}>Logout</button>
 				<form onSubmit={this._handleSubmit}>
 					<input name="taskName"  placeholder="Enter task here" />
-					<select name="taskLength" placeholder="Length">
-						<option value="0">0</option>
+					<select name="taskLength" className="browser-default">
+						{this._dropdownOptionsToRender()}
 					</select>
 					<button>Add Task</button>
 				</form>
-				<SchedulePopUp />
+				<SchedulePopUp availability={this.state.availableTimes} style={popUpStyle} />
 				<Buttons currentTasks={this.state.currentTasks} />
 				<TaskContainer collection={tasksToRender} />
-				<div id="darken-bg" style={bgStyle} onClick={this._bgClick}></div>
+				<div id="darken-bg" style={popUpStyle} onClick={this._bgClick}></div>
 			</div>
 		)
 	}
 })
 
 const SchedulePopUp = React.createClass({
+	//Ask if this is okay. Another potential solution: render only if a day is selected
+	//we don't want an empty select.
 	_getAvailableTimes: function() {
-		var times = STORE._get("availableTimes")
+		var times = this.props.availability
 		if(times){
-			var formattedTimes = times.map((time)=>{
+			var formattedTimes = times.map((time,index)=>{
+				//IMPORTANT: it's blank when there are no times. FIX THIS
 				return (
-					<button onClick={this._handleSubmitEvent} value={time} name="when">
-						{UTILS._formatTime(time)}
-					</button>
+					<option value={time} key={index}>
+						{UTILS.formatTime(time)}
+					</option>
 				)
 			})
-			return formattedTimes
+			return (
+				<select className="browser-default time-display" name="when">
+					{formattedTimes}
+				</select>
+				)
 		}
 	},
 	_handleSelectDay: function(event) {
@@ -90,35 +102,34 @@ const SchedulePopUp = React.createClass({
 	},
 	_handleSubmitEvent: function(event) {
 		event.preventDefault()
-		var tasksToSchedule = ACTIONS.getTasksArray()
+
+		var tasksToSchedule = ACTIONS.getTasksToScheduleString()
 		var eventDetailsObj = {
 			whatEvent: tasksToSchedule,
-			whenEvent: event.target.value
+			whenEvent: event.target.when.value
 		}
 		ACTIONS.createEvent(eventDetailsObj)
 	},
 	render: function(){
-		var allTasksLength = ACTIONS.countTasksLength()
-		var popUpStyle = {
-			display: allTasksLength >= STORE._get("scheduleLimiter") ? "block" : "none"
-		}
 		var dateToJsx= (date, index) => {
 			return (
-				<div className="date-display" key={index} name="dayToSchedule">
-					<button value={date} 
-							onClick={this._handleSelectDay}>
-							{UTILS.formatDate(date)}
-					</button>
-				</div>
+				<option className="date-display" 
+						key={index}
+						value={date}>
+						{UTILS.formatDate(date)}
+				</option>
 			)
 		}
 		return (
-			<div className="schedule-pop-up" style={popUpStyle}>
+			<div className="schedule-pop-up" style={this.props.style}>
 				<p>Schedule your block of tasks now</p>
-				{ACTIONS.getDates().map(dateToJsx)}
-				<div className="time-display">
-					{this._getAvailableTimes()}
-				</div>
+				<form onSubmit={this._handleSubmitEvent}>
+					<select onChange={this._handleSelectDay} name="dayToSchedule" className="browser-default date-display">
+						{UTILS.getNextWeek().map(dateToJsx)}
+					</select>
+						{this._getAvailableTimes()}
+					<button>Schedule</button>
+				</form>
 			</div>
 		)
 	}
@@ -151,8 +162,7 @@ const Buttons = React.createClass({
 const TaskContainer = React.createClass({
 	_handleScheduleNow: function(event) {
 		event.preventDefault()
-		document.querySelector("#darken-bg").style.display = "block"
-		document.querySelector(".schedule-pop-up").style.display = "block"
+		STORE._set("showPopUp",true)
 	},
 	render: function(){
 		return (
@@ -174,7 +184,6 @@ const Task = React.createClass({
 			<div className="task">
 				<span>{this.props.model.get("taskName")}</span>
 				<span>{this.props.model.get("taskLength")}</span>
-				{/*<p>{this.props.model.get("complete")}</p>*/}
 				<button onClick={this._removeTask}>Remove Task</button>
 			</div>
 		)

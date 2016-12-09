@@ -20,8 +20,25 @@ const UTILS = {
 	getCurrentUser: function() {
 		return localStorage.getItem('userName')
 	},
-	logoutUser: function() {
-		localStorage.clear()
+	getNextWeek: function() {
+	    var dateToGet = new Date(),
+	        weekArr = []
+
+	    for(var i = 0; i < 8; i ++){
+	    	//pushes copy of date Object, since the copy is not changed when setDate is used
+	        weekArr.push(new Date(dateToGet))
+	        dateToGet = new Date(dateToGet.setDate(dateToGet.getDate() + 1))
+	    }
+	    return weekArr
+	},
+	getThirtyMinIncrements: function(start,end) {
+	    var timeBlocksArr = []
+
+	    while(start.getHours() <= new Date(end).getHours()) {
+	        timeBlocksArr.push(start)
+	    	start = this.addMinutes(start,30)
+	    }
+	    return timeBlocksArr
 	}
 }
 export default UTILS
