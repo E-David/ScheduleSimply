@@ -28,7 +28,6 @@ const ACTIONS = {
 			})
 	},
 	changeTasksToScheduled: function(date) {
-		//Possible do where you provide the status to update to
 		var  toBeScheduledArr = STORE._get("tasksToBeScheduled")
 
 		for(var i = 0; i < toBeScheduledArr.length; i++){
@@ -47,16 +46,15 @@ const ACTIONS = {
 		}
 
 		STORE._set({
-			taskCollection: coll,
 			tasksToBeScheduled: []
 		})
 	},
-	changeView: function(viewName) {
-		STORE._set({
-			currentView: viewName
-		})
-	},
-	// checkIfOverLimiter: function() {
+	// changeView: function(viewName) {
+	// 	STORE._set({
+	// 		currentView: viewName
+	// 	})
+	// },
+	// // checkIfOverLimiter: function() {
 	// 	var taskCount = ACTIONS.countUnscheduledTasksLength(),
 	// 		limiter = STORE._get("scheduleLimiter")
 
@@ -144,7 +142,8 @@ const ACTIONS = {
 	fetchTasks: function() {
 		STORE._get('taskCollection').fetch({
 			data: {
-				userName: UTILS.getCurrentUser()
+				userName: UTILS.getCurrentUser(),
+				taskStatus: "unscheduled"
 			}
 		})	 .done(()=> ACTIONS.countTasksToBeScheduled())
 			 .fail(()=> alert("Error fetching tasks"))
@@ -194,7 +193,7 @@ const ACTIONS = {
 			}
 		return this.filterAvailableBlocks(scheduledTimes)
 	},
-	getTasksToScheduleString: function() {
+	getTasksToBeScheduledString: function() {
 		var toBeScheduledArr = STORE._get("tasksToBeScheduled"),
 			taskArray = []
 

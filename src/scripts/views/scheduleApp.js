@@ -36,26 +36,26 @@ const ScheduleApp = React.createClass({
 		var i = 0,
 			optionsHtmlArr = []
 		while(i <= this.state.scheduleLimiter){
-			optionsHtmlArr.push(<option value={i} key={i}>{i}</option>)
+			optionsHtmlArr.push(<option value={i} key={i}>{i + " mins"}</option>)
 			i += 5
 		}
 		return optionsHtmlArr
 	},
-	_viewToRender: function(coll) {
-		var currentView = this.state.currentView
-		if(currentView === "Scheduled") {
-			return coll.filter(mod => mod.get('taskStatus') === "scheduled")
-		} else if(currentView === "Completed") {
-			return coll.filter(mod => mod.get('taskStatus') === "completed")
-		} else {
-			return coll.filter(mod => mod.get('taskStatus') === "unscheduled")
-		}
-	},
+	// _viewToRender: function(coll) {
+	// 	var currentView = this.state.currentView
+	// 	if(currentView === "Scheduled") {
+	// 		return coll.filter(mod => mod.get('taskStatus') === "scheduled")
+	// 	} else if(currentView === "Completed") {
+	// 		return coll.filter(mod => mod.get('taskStatus') === "completed")
+	// 	} else {
+	// 		return coll.filter(mod => mod.get('taskStatus') === "unscheduled")
+	// 	}
+	// },
 	render: function() {
 		var popUpStyle = {
 			visibility: this.state.showPopUp ? "visible" : "hidden"
 		}
-		var tasksToRender = this._viewToRender(this.state.taskCollection)
+		// var tasksToRender = this._viewToRender(this.state.taskCollection)
 		return (
 			<div className="schedule-app">
 				<span>{`Welcome ${UTILS.getCurrentUser()}`}</span>
@@ -68,8 +68,9 @@ const ScheduleApp = React.createClass({
 					<button>Add Task</button>
 				</form>
 				<SchedulePopUp availability={this.state.availableTimes} style={popUpStyle} />
-				<Buttons currentTasks={this.state.currentTasks} />
-				<TaskContainer collection={tasksToRender} />
+				{/*<Buttons currentTasks={this.state.currentTasks} />*/}
+				{/*<TaskContainer collection={tasksToRender} />*/}
+				<TaskContainer collection={this.state.taskCollection} />
 				<div id="darken-bg" style={popUpStyle} onClick={this._bgClick}></div>
 			</div>
 		)
@@ -103,7 +104,7 @@ const SchedulePopUp = React.createClass({
 	_handleSubmitEvent: function(event) {
 		event.preventDefault()
 
-		var tasksToSchedule = ACTIONS.getTasksToScheduleString()
+		var tasksToSchedule = ACTIONS.getTasksToBeScheduledString()
 		var eventDetailsObj = {
 			whatEvent: tasksToSchedule,
 			whenEvent: event.target.when.value
@@ -135,29 +136,29 @@ const SchedulePopUp = React.createClass({
 	}
 })
 
-const Buttons = React.createClass({
-	_handleTabClick: function(eventObj) {
-		var tabClicked = eventObj.target.value
-		ACTIONS.changeView(tabClicked)
-	},
-	render: function() {
-		var nameToJSX = (buttonName, index) => {
-			return <button 
-					onClick={this._handleTabClick} 
-					value={buttonName} 
-					key={index}
-					className={this.props.currentTasks === buttonName ? 'active' : ''} >
-					{buttonName}
-					</button>
-		}
-		return (
-			<div className="buttons">
-				{/* map an array of button names into an array of jsx buttons */}
-				{["Unscheduled","Scheduled","Completed"].map(nameToJSX)}
-			</div>
-		)
-	}
-})
+// const Buttons = React.createClass({
+// 	_handleTabClick: function(eventObj) {
+// 		var tabClicked = eventObj.target.value
+// 		ACTIONS.changeView(tabClicked)
+// 	},
+// 	render: function() {
+// 		var nameToJSX = (buttonName, index) => {
+// 			return <button 
+// 					onClick={this._handleTabClick} 
+// 					value={buttonName} 
+// 					key={index}
+// 					className={this.props.currentTasks === buttonName ? 'active' : ''} >
+// 					{buttonName}
+// 					</button>
+// 		}
+// 		return (
+// 			<div className="buttons">
+// 				{/* map an array of button names into an array of jsx buttons */}
+// 				{["Unscheduled","Scheduled","Completed"].map(nameToJSX)}
+// 			</div>
+// 		)
+// 	}
+// })
 
 const TaskContainer = React.createClass({
 	_handleScheduleNow: function(event) {
