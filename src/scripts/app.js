@@ -22,6 +22,7 @@ const app = function() {
 		handleLogin: function() {
 			ReactDOM.render(<LoginView />, document.querySelector('.container'))
 		},
+
 		setToken: function(token) {
 			localStorage.setItem('calendar_token',token)
 			$.getJSON(`/google/calendar/events?token=${token}`)

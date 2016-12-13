@@ -21,13 +21,13 @@ const UTILS = {
 		return localStorage.getItem('userName')
 	},
 	getNextWeek: function() {
-	    var dateToGet = new Date(),
-	        weekArr = []
+	    var weekArr = []
 
 	    for(var i = 0; i < 8; i ++){
 	    	//pushes copy of date Object, since the copy is not changed when setDate is used
-	        weekArr.push(new Date(dateToGet))
-	        dateToGet = new Date(dateToGet.setDate(dateToGet.getDate() + 1))
+	        var date = new Date()
+	        date.setDate(date.getDate() + i)
+	        weekArr.push(this.formatDate(date))
 	    }
 	    return weekArr
 	},

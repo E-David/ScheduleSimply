@@ -68,14 +68,20 @@ const ACTIONS = {
 	// 	}
 	// 	console.log(ACTIONS.countUnscheduledTasksLength())
 	// },
-	// countUnscheduledTasksLength: function(){
-	// 	var unscheduledColl = ACTIONS.filterUnscheduledTasks()
-	// 	var unscheduledTasksLength = unscheduledColl.reduce((accumulator,taskModel,index) => {
-	// 		console.log(accumulator,index)
-	// 		return accumulator + taskModel.get("taskLength")
-	// 	},0)
-	// 	return unscheduledTasksLength
-	// },
+	confirmDetails: function(eventDetails) {
+		console.log(eventDetails)
+		STORE._set({
+			schedulingDetails: eventDetails,
+			showConfirm: true
+		})
+	},
+	countTasksLength: function(){
+		var coll = STORE._get("taskCollection")
+		var tasksLength = coll.reduce((accumulator,taskModel) => {
+			return accumulator + taskModel.get("taskLength")
+		},0)
+		return tasksLength
+	},
 	countTasksToBeScheduled: function() {
 		var coll = STORE._get("taskCollection"),
 			limiter = STORE._get("scheduleLimiter"),
@@ -102,9 +108,10 @@ const ACTIONS = {
 		}
 		STORE._set("tasksToBeScheduled",toBeScheduledArr)
 	},
-	createEvent: function(eventTime) {
-		var startTime = new Date(eventTime["whenEvent"])
-		var endTime = UTILS.addMinutes(startTime,STORE._get("scheduleLimiter"))
+	createEvent: function() {
+		var eventTime = STORE._get("schedulingDetails"),
+			startTime = new Date(eventTime["whenEvent"]),
+			endTime = UTILS.addMinutes(startTime,STORE._get("scheduleLimiter"))
 
 		$.getJSON(`/google/calendar/create?what=${eventTime["whatEvent"]}&start=${startTime.toISOString()}&end=${endTime.toISOString()}&token=${localStorage.getItem('calendar_token')}`)
 			.then(
@@ -133,6 +140,7 @@ const ACTIONS = {
 	    }).done((resp)=> {
 	    	ACTIONS.getAvailableTimes(date)
 	    	ACTIONS.getScheduledTimes()
+	    	STORE._set("showTime",true)
 	    })
 	      .fail((err)=> {
 	      	alert("Error retrieving tasks")
@@ -178,6 +186,7 @@ const ACTIONS = {
 		STORE._set({
 			availableTimes: UTILS.getThirtyMinIncrements(startDate,endDate)
 		})
+		console.log("TIMES",STORE._get("availableTimes"))
 	},
 	getScheduledTimes: function() {
 		console.log(STORE._get("scheduledEventsCollection"))
@@ -213,6 +222,15 @@ const ACTIONS = {
 				 	alert("Error when removing task")
 				 	console.log(err)
 				 })
+	},
+
+	setDetail: function(prop,val) {
+		var schedulingDetails = STORE._get('schedulingDetails')
+		schedulingDetails[prop] = val
+		STORE._set({
+			schedulingDetails: schedulingDetails
+		})
+		ACTIONS.fetchAvailability(val)
 	}
 }
 export default ACTIONS
