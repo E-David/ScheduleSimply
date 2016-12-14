@@ -10,9 +10,11 @@ const LoginView = React.createClass({
 	render: function() {
 		return (
 			<div className="login-view">
-				<h1>Schedule Me Now</h1>
-				<h3>Immediate scheduling made simple.</h3>
-				<button onClick={this._googleAuth}>Google Login</button>
+				<div className="delete">
+					<h1>Schedule Me Now</h1>
+					<h3>Immediate scheduling made simple.</h3>
+					<button className="waves-effect waves-light green" onClick={this._googleAuth}>Google Login</button>
+				</div>
 			</div>
 		)
 	}

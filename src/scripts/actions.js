@@ -1,5 +1,5 @@
 import STORE from "./store"
-import {TaskCollection, TaskModel, scheduledEventsCollection} from "./models/dataModels"
+import {TaskCollection, TaskModel, ScheduledEventsCollection} from "./models/dataModels"
 import User from "./models/userModel"
 import $ from 'jquery'
 import UTILS from "./utils"
@@ -9,6 +9,11 @@ user preferences for when you are available
 responsive web design
 refresh token***
 WHEN TO CHECK??
+feedback for what you're doing now
+when presenting, say what happens once you've added something to google
+popup if you try to add something. Field does't empty, but pop up asks if you want to schedule now
+more than 30
+prepare for worst case scnario
 */
 const ACTIONS = {
 	//add task to STORE and save to database. Added model triggers "update" for STORE re-render
@@ -24,9 +29,12 @@ const ACTIONS = {
 			})
 			.fail((err) => {
 				alert("Error when adding task")
-				console.log(err)
+				
 			})
 	},
+	//Once event is scheduled, save task status and when it was scheduled, then reset app:
+	// 1. set pop up state to false 2. reset tasksToBeScheduled 3. remove collection from tasks
+	// scheduled
 	changeTasksToScheduled: function(date) {
 		var  toBeScheduledArr = STORE._get("tasksToBeScheduled")
 
@@ -41,39 +49,17 @@ const ACTIONS = {
 			taskModel.save()
 				 	 .fail((err)=>{
 				 		alert("Error when updating task")
-				 		console.log(err)
+				 		
 				 	  })
 		}
 
 		STORE._set({
-			tasksToBeScheduled: []
+			tasksToBeScheduled: [],
+			showConfirm: false,
+			showTime: false,
+			showPopUp: false
 		})
-	},
-	// changeView: function(viewName) {
-	// 	STORE._set({
-	// 		currentView: viewName
-	// 	})
-	// },
-	// // checkIfOverLimiter: function() {
-	// 	var taskCount = ACTIONS.countUnscheduledTasksLength(),
-	// 		limiter = STORE._get("scheduleLimiter")
 
-	// 	if (taskCount === limiter ){
-	// 		STORE._set("showPopUp",true)
-	// 	} else if (taskCount > limiter) {
-	// 		ACTIONS.removeTaskOverflow()
-	// 		STORE._set("showPopUp",true)
-	// 	} else {
-	// 		STORE._set("showPopUp",false)
-	// 	}
-	// 	console.log(ACTIONS.countUnscheduledTasksLength())
-	// },
-	confirmDetails: function(eventDetails) {
-		console.log(eventDetails)
-		STORE._set({
-			schedulingDetails: eventDetails,
-			showConfirm: true
-		})
 	},
 	countTasksLength: function(){
 		var coll = STORE._get("taskCollection")
@@ -82,6 +68,9 @@ const ACTIONS = {
 		},0)
 		return tasksLength
 	},
+	// with limiter and task Collection, check if the newest task will exceed limiter
+	// If not, add task to be scheduled. If not but equals limiter, go ahead and have user
+	// schedule the task (show pop up). If yes, don't add newest task, have pop up show up
 	countTasksToBeScheduled: function() {
 		var coll = STORE._get("taskCollection"),
 			limiter = STORE._get("scheduleLimiter"),
@@ -109,8 +98,9 @@ const ACTIONS = {
 		STORE._set("tasksToBeScheduled",toBeScheduledArr)
 	},
 	createEvent: function() {
+		
 		var eventTime = STORE._get("schedulingDetails"),
-			startTime = new Date(eventTime["whenEvent"]),
+			startTime = new Date(eventTime["time"]),
 			endTime = UTILS.addMinutes(startTime,STORE._get("scheduleLimiter"))
 
 		$.getJSON(`/google/calendar/create?what=${eventTime["whatEvent"]}&start=${startTime.toISOString()}&end=${endTime.toISOString()}&token=${localStorage.getItem('calendar_token')}`)
@@ -121,7 +111,7 @@ const ACTIONS = {
 				},
 				function(err) {
 					alert("Error scheduling event")
-					console.log(err)
+					
 				}
 			)
 	},
@@ -131,20 +121,25 @@ const ACTIONS = {
 	    	endOfDayRaw   = new Date(date).setHours(23,59,59,999),
 	    	endOfDay 	  = new Date(endOfDayRaw).toISOString()
 
-	    STORE._get("scheduledEventsCollection").fetch({
+	    var schEvColl = new ScheduledEventsCollection()
+	    schEvColl.fetch({
 	    	data: {
 	    		start: startOfDay,
 	    		end: endOfDay,
 	    		token: localStorage.getItem('calendar_token')
 	    	}
 	    }).done((resp)=> {
-	    	ACTIONS.getAvailableTimes(date)
-	    	ACTIONS.getScheduledTimes()
-	    	STORE._set("showTime",true)
+
+	    	// pass date and response of occupied times and filter for available time blocks
+	    	var openTimes = ACTIONS.getOpenTimeBlocks(date,resp)
+	    	STORE._set({
+	    		showTime: true,
+	    		availableTimes: openTimes
+	    	})
 	    })
 	      .fail((err)=> {
 	      	alert("Error retrieving tasks")
-	      	console.log(err)
+	      	
 	    })
 	},
 	fetchTasks: function() {
@@ -158,10 +153,9 @@ const ACTIONS = {
 	},
 	//TODO: change this so you have the option to schedule up to start/end time.
 	//Ex: you have something at 7. You should be able to schedule something from 6:30-7
-	filterAvailableBlocks: function(scheduledEvents) {
-		var allTimes = STORE._get("availableTimes")
-		var scheduledTimes = scheduledEvents
-		var filteredTimes = allTimes.filter((time)=> {
+	filterAvailableBlocks: function(dateToSchedule,scheduledTimes) {
+		var potentialTimes = ACTIONS.getPotentialTimes(dateToSchedule)
+		var filteredTimes = potentialTimes.filter((time)=> {
 			for(var i = 0; i < scheduledTimes.length; i++){
 				if (time >= scheduledTimes[i].start && 
 					time <= scheduledTimes[i].end ||
@@ -171,37 +165,28 @@ const ACTIONS = {
 			}
 			return true
 		})
-		STORE._set({
-			availableTimes: filteredTimes
-		})
+		return filteredTimes
 	},
-	// filterUnscheduledTasks: function() {
-	// 	var coll = STORE._get("taskCollection")
-	// 	return coll.filter((mod) => mod.get("taskStatus") === "unscheduled")
-	// },
-	getAvailableTimes: function(date) {
+	getOpenTimeBlocks: function(dateToSchedule,occupiedTimes) {
+		var scheduledTimes = [],
+			occupiedTimesArr = occupiedTimes.items
+
+			for(var i = 0; i < occupiedTimesArr.length; i++) {
+				scheduledTimes.push({
+					start: new Date(occupiedTimesArr[i].start.dateTime),
+					end: new Date(occupiedTimesArr[i].end.dateTime)
+				})
+			}
+		return this.filterAvailableBlocks(dateToSchedule,scheduledTimes)
+	},
+	//Get thirty min increments from when you set startDate to when you set endDate
+	getPotentialTimes: function(date) {
 		//Need to change this based on user preference
 		var startDate = new Date(new Date(date).setHours(15,0,0,0))
 		var endDate = new Date(date).setHours(20,0,0,0)
-		STORE._set({
-			availableTimes: UTILS.getThirtyMinIncrements(startDate,endDate)
-		})
-		console.log("TIMES",STORE._get("availableTimes"))
+		return UTILS.getThirtyMinIncrements(startDate,endDate)
 	},
-	getScheduledTimes: function() {
-		console.log(STORE._get("scheduledEventsCollection"))
-		var scheduledColl = STORE._get("scheduledEventsCollection"),
-			scheduledTimes = [],
-			eventsArr = scheduledColl.models[0].get("items")
-
-			for(var i = 0; i < eventsArr.length; i++) {
-				scheduledTimes.push({
-					start: new Date(eventsArr[i].start.dateTime),
-					end: new Date(eventsArr[i].end.dateTime)
-				})
-			}
-		return this.filterAvailableBlocks(scheduledTimes)
-	},
+	// string used to add to calendar
 	getTasksToBeScheduledString: function() {
 		var toBeScheduledArr = STORE._get("tasksToBeScheduled"),
 			taskArray = []
@@ -220,17 +205,17 @@ const ACTIONS = {
 		taskModel.destroy()
 				 .fail((err) => {
 				 	alert("Error when removing task")
-				 	console.log(err)
+				 	
 				 })
 	},
-
 	setDetail: function(prop,val) {
 		var schedulingDetails = STORE._get('schedulingDetails')
-		schedulingDetails[prop] = val
+			schedulingDetails[prop] = val
+	},
+	showConfirmDetails: function() {
 		STORE._set({
-			schedulingDetails: schedulingDetails
+			showConfirm: true
 		})
-		ACTIONS.fetchAvailability(val)
 	}
 }
 export default ACTIONS

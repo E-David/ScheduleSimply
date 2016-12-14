@@ -8,7 +8,7 @@ const STORE = _.extend(Backbone.Events,{
 		taskCollection: new TaskCollection(),
 		scheduleLimiter: 30,
 		scheduledEventsCollection: new ScheduledEventsCollection(),
-		availableTimes: undefined,
+		availableTimes: [],
 		currentView: "Unscheduled",
 		showPopUp: false,
 		showTime: false,
