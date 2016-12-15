@@ -27,23 +27,23 @@ const ScheduleApp = React.createClass({
 	},
 	render: function() {
 		var popUpStyle = {
-			visibility: this.state.showPopUp ? "visible" : "hidden",
 			width: this.state.showTime ? "360px" : "180px",
 			height: this.state.showConfirm ? "220px" : "120px"
 		}
-		var bgStyle = {
-			visibility: this.state.showPopUp ? "visible" : "hidden"
-		}
+		var popUpShowClass = this.state.showPopUp ? "make-visible" : "make-hidden"
+		var bgShowClass = this.state.showPopUp ? "make-visible" : "make-hidden"
 		return (
 			<div className="schedule-app">
 				<Header />
 				<SchedulePopUp availability={this.state.availableTimes} 
+							   showPopUp={this.state.showPopUp}
 							   showTime={this.state.showTime} 
 							   showConfirm={this.state.showConfirm}
 							   schedulingDetails={this.state.schedulingDetails} 
-							   popUpStyle={popUpStyle} />
+							   popUpStyle={popUpStyle} 
+							   showClass={popUpShowClass} />
 				<BodyContainer scheduleLimiter={this.state.scheduleLimiter} collection={this.state.taskCollection} />
-				<div className="darken-bg" style={bgStyle} onClick={this._bgClick}></div>
+				<div className={`darken-bg ${bgShowClass}`} onClick={this._bgClick}></div>
 			</div>
 		)
 	}
@@ -56,7 +56,7 @@ const Header = React.createClass({
 				<div className="header-wrapper group">
 					<h2 className="logo left">ScheduleSimply</h2>
 					<div className="user-details right">
-						<h6>{`Signed in as: ${UTILS.getCurrentUser()}`}</h6>
+						<h6>{`Signed in as ${UTILS.getCurrentUser()}`}</h6>
 						<div className="logout">
 							<span>Not you?</span>
 							<span className="logout-button" onClick={ACTIONS.logoutUser}>Logout</span>
@@ -86,8 +86,9 @@ const SchedulePopUp = React.createClass({
 		var confirmStyle = {
 			opacity: this.props.showConfirm ? "1" : "0"
 		}
+		var transitionClass = this.props.showPopUp ? "slow-appear" : "fast-disappear"
 		return (
-			<div className="schedule-pop-up" style={this.props.popUpStyle}>
+			<div className={`schedule-pop-up ${this.props.showClass}`} style={this.props.popUpStyle}>
 				<div className="pop-instructions center-align">
 				</div>
 				<form onSubmit={this._handleSubmitEvent}>
@@ -100,7 +101,7 @@ const SchedulePopUp = React.createClass({
 							detailProp="day" 
 							/>
 					</div>
-					<div className="time-select input-field"  style={timeStyle} >
+					<div className={`time-select input-field ${transitionClass}`}  style={timeStyle} >
 						<p className="right right-align">Schedule a time</p>
 						<MaterialSelect
 							showing={this.props.showTime}
@@ -109,10 +110,10 @@ const SchedulePopUp = React.createClass({
 							detailProp="time"
 							/>
 					</div>
-					<div className="confirm" style={confirmStyle}>
+					<div className={`confirm ${transitionClass}`} style={confirmStyle}>
 						<p>{this._showDetails()}</p>
 					</div>
-					<div className="schedule" style={confirmStyle}>
+					<div className={`schedule ${transitionClass}`} style={confirmStyle}>
 						<button className="btn waves-effect waves-light">Schedule Tasks</button>
 					</div>
 				</form>
@@ -176,7 +177,7 @@ const TaskContainer = React.createClass({
 				<div className="add-task-form">
 					<form className="add-task input-field" onSubmit={this._handleSubmit}>
 						<input className="task-name" name="taskName" placeholder="Task Name" required />
-						<input className="task-length" name="taskLength" placeholder="Time" type="number" step="5" min="5" max="30"/>
+						<input className="task-length" name="taskLength" placeholder="Time" type="number" step="5" min="5" max="30" required/>
 						<button className="add btn-floating waves-effect waves-light"><i className="material-icons">add</i></button>
 					</form>
 				</div>

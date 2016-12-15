@@ -58,9 +58,10 @@ const ACTIONS = {
 			tasksToBeScheduled: [],
 			showConfirm: false,
 			showTime: false,
-			showPopUp: false
+			showPopUp: false,
+			schedulingDetails: {}
 		})
-
+		ACTIONS.fetchTasks()
 	},
 	countTasksLength: function(){
 		var coll = STORE._get("taskCollection")
@@ -103,7 +104,7 @@ const ACTIONS = {
 		$.getJSON(`/google/calendar/create?what=${whatEvent}&start=${startTime.toISOString()}&end=${endTime.toISOString()}&token=${localStorage.getItem('calendar_token')}`)
 			.then(
 				function() {
-					toastr.success(`Tasks scheduled on ${startTime.getMonth() % 12 + 1}/${startTime.getDate()} at ${UTILS.formatTime(startTime)}`)
+					toastr.success(`Tasks scheduled ${startTime.getMonth() % 12 + 1}/${startTime.getDate()} at ${UTILS.formatTime(startTime)}`)
 					ACTIONS.changeTasksToScheduled()
 				},
 				function(err) {
@@ -180,8 +181,8 @@ const ACTIONS = {
 	//Get thirty min increments from when you set startDate to when you set endDate
 	getPotentialTimes: function(date) {
 		//Need to change this based on user preference
-		var startDate = new Date(new Date(date).setHours(0,0,0,0))
-		var endDate = new Date(date).setHours(14,0,0,0)
+		var startDate = new Date(new Date(date).setHours(15,0,0,0))
+		var endDate = new Date(date).setHours(21,0,0,0)
 		return UTILS.getThirtyMinIncrements(startDate,endDate)
 	},
 	// string used to add to calendar

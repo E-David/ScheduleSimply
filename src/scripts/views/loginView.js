@@ -11,9 +11,9 @@ const LoginView = React.createClass({
 		return (
 			<div className="login-view valign-wrapper">
 				<div className="login-wrapper">
-					<h1 className="valign">Schedule Simply</h1>
+					<h1 className="valign">ScheduleSimply</h1>
 					<h3 className="valign">Plan. Schedule. Do.</h3>
-					<button className="btn waves-effect waves-light inigo lighten-5 valign" onClick={this._googleAuth}>Google Login</button>
+					<button className="btn waves-effect waves-light valign" onClick={this._googleAuth}>Google Login</button>
 				</div>
 			</div>
 		)

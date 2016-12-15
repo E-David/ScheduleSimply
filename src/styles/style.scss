@@ -1,6 +1,7 @@
 @import "./_reset";
 @import "../../node_modules/materialize-css/sass/materialize.scss";
 @import url('https://fonts.googleapis.com/css?family=Montserrat|Roboto');
+@import "../../node_modules/toastr/toastr.scss";
 
 $primary-color: #e8eaf6;
 $accent-color: #5d4037;
@@ -12,7 +13,9 @@ $font-body: 'Roboto', sans-serif;
 * {
 	box-sizing: border-box;
 }
-
+.dropdown-content {
+	max-height: 500px;
+}
 .container {
 	max-width: 100%;
 	width: 100%;
@@ -35,6 +38,12 @@ $font-body: 'Roboto', sans-serif;
 				background-color: $primary-color;
 				color: $bg-color;
 				margin: auto;
+			}
+			.btn:hover {
+				background-color: darken($primary-color,30);
+			}
+			.btn:active {
+				background-color: darken($primary-color,10);
 			}
 		}
 	}
@@ -78,12 +87,25 @@ $font-body: 'Roboto', sans-serif;
 	}
 	.schedule-app {
 		margin: 0 auto;
+		.make-visible {
+			transition: 0.3s all ease-in-out;
+			visibility: visible;
+		}
+		.make-hidden {
+			transition: 0s all ease-in-out;
+			visibility: hidden;
+		}
+		.slow-appear {
+			transition: 1s all ease-in-out;
+		}
+		.fast-disappear {
+			transition: 0s all ease-in-out;
+		}
 		.schedule-pop-up {
 			position: absolute;
 			top: 19%;
 			left: 50%;
 			transform: translateX(-50%);
-			transition: 0.2s all ease-in-out;
 			z-index: 5;
 			background-color: white;
 			font-family: $font-body;
@@ -110,7 +132,6 @@ $font-body: 'Roboto', sans-serif;
 				width: 180px;
 				height: 100px;
 				text-align: right;
-				transition: 1s all ease;
 				p {
 					text-align: right;
 					color: $text-color;
@@ -119,14 +140,12 @@ $font-body: 'Roboto', sans-serif;
 			.confirm {
 				padding: 1rem;
 				margin: 0;
-				transition: 1s all ease;
 				p {
 					text-align: center;
 				}
 			}
 			.schedule {
 				text-align: center;
-				transition: 1s all ease;
 				button {
 					background-color: $bg-color;
 					color: $primary-color;
@@ -277,7 +296,6 @@ $font-body: 'Roboto', sans-serif;
 			}
 		}
 		.darken-bg {
-			transition: 0.5s ease all;
 			width: 100%;
 			height: 100vh;
 			background-color: black;
