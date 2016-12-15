@@ -9,7 +9,8 @@ const ScheduleApp = React.createClass({
 	_bgClick: function() {
 		STORE._set({
 			showPopUp: false,
-			showConfirm: false
+			showConfirm: false,
+			showTime: false
 		})
 	},
 	componentWillMount: function() {
@@ -27,8 +28,8 @@ const ScheduleApp = React.createClass({
 	render: function() {
 		var popUpStyle = {
 			visibility: this.state.showPopUp ? "visible" : "hidden",
-			width: this.state.showTime ? "375px" : "200px",
-			height: this.state.showConfirm ? "250px" : "100px"
+			width: this.state.showTime ? "360px" : "180px",
+			height: this.state.showConfirm ? "220px" : "120px"
 		}
 		var bgStyle = {
 			visibility: this.state.showPopUp ? "visible" : "hidden"
@@ -53,12 +54,12 @@ const Header = React.createClass({
 		return (
 			<header>
 				<div className="header-wrapper group">
-					<p className="logo left">ScheduleMeNow</p>
+					<h2 className="logo left">ScheduleSimply</h2>
 					<div className="user-details right">
-						<p>{`Signed in as: ${UTILS.getCurrentUser()}`}</p>
+						<h6>{`Signed in as: ${UTILS.getCurrentUser()}`}</h6>
 						<div className="logout">
 							<span>Not you?</span>
-							<button className="logout waves-effect waves-light green" onClick={ACTIONS.logoutUser}>Logout</button>
+							<span className="logout-button" onClick={ACTIONS.logoutUser}>Logout</span>
 						</div>
 					</div>
 				</div>
@@ -68,44 +69,14 @@ const Header = React.createClass({
 })
 
 const SchedulePopUp = React.createClass({
-	//Ask if this is okay. Another potential solution: render only if a day is selected
-	//we don't want an empty select.
-	_getAvailableTimes: function() {
-		var times = this.props.availability
-		if(times){
-			var formattedTimes = times.map((time,index)=>{
-				//IMPORTANT: it's blank when there are no times. FIX THIS
-				return (<option value={new Date(time)}>
-							{UTILS.formatTime(time)}
-						</option>
-				)
-			})
-			return formattedTimes
-		}
-		else {
-			
-			return []
-		}
-	},
-	// _handleSelectDay: function() {
-	// 	ACTIONS.fetchAvailability(STORE._get("schedulingDetails")["day"])
-	// },
-	_handleSelectTime: function(event) {
-		var tasksToSchedule = ACTIONS.getTasksToBeScheduledString()
-		var eventDetailsObj = {
-			whatEvent: tasksToSchedule,
-			whenEvent: event.target.value
-		}
-		ACTIONS.showConfirmDetails(eventDetailsObj)
-	},
 	_handleSubmitEvent: function(event) {
 		event.preventDefault()
 		ACTIONS.createEvent()
 	},
 	_showDetails: function() {
 		if(this.props.showConfirm){
-			var timeDetails = this.props.schedulingDetails
-			return `Schedule tasks below on ${UTILS.formatDate(timeDetails["day"])} at ${UTILS.formatTime(timeDetails["time"])}?`
+			var details = new Date(this.props.schedulingDetails["time"])
+			return `Schedule tasks below on ${UTILS.formatDate(details)} at ${UTILS.formatTime(details)}?`
 		}
 	},
 	render: function(){
@@ -113,12 +84,15 @@ const SchedulePopUp = React.createClass({
 			opacity: this.props.showTime ? "1" : "0"
 		}
 		var confirmStyle = {
-			visibility: this.props.showConfirm ? "visible" : "hidden"
+			opacity: this.props.showConfirm ? "1" : "0"
 		}
 		return (
 			<div className="schedule-pop-up" style={this.props.popUpStyle}>
+				<div className="pop-instructions center-align">
+				</div>
 				<form onSubmit={this._handleSubmitEvent}>
 					<div className="date-select input-field">
+						<p className="left left-align">Schedule a day</p>
 						<MaterialSelect
 							showing={true}
 							displayValues={UTILS.getNextWeek().map(val=>UTILS.formatDate(val))} 
@@ -126,7 +100,8 @@ const SchedulePopUp = React.createClass({
 							detailProp="day" 
 							/>
 					</div>
-					<div className="time-select input-field" >
+					<div className="time-select input-field"  style={timeStyle} >
+						<p className="right right-align">Schedule a time</p>
 						<MaterialSelect
 							showing={this.props.showTime}
 							displayValues={this.props.availability.map(val=>UTILS.formatTime(val))} 
@@ -134,11 +109,11 @@ const SchedulePopUp = React.createClass({
 							detailProp="time"
 							/>
 					</div>
-					<div className="confirm" style={confirmStyle} >
-						<p className="details">{this._showDetails}</p>
+					<div className="confirm" style={confirmStyle}>
+						<p>{this._showDetails()}</p>
 					</div>
 					<div className="schedule" style={confirmStyle}>
-						<button>Schedule Tasks</button>
+						<button className="btn waves-effect waves-light">Schedule Tasks</button>
 					</div>
 				</form>
 			</div>
@@ -153,7 +128,7 @@ const BodyContainer = React.createClass({
 				<Limiter maxLength={this.props.scheduleLimiter} />
 				<TaskContainer collection={this.props.collection} />
 			</div>
-			)
+		)
 	}
 })
 
@@ -166,13 +141,15 @@ const Limiter = React.createClass({
 		var limiterProgressStyle = {
 			height: `${(tasksLength / this.props.maxLength) * 100}%`,
 			width: `${(tasksLength / this.props.maxLength) * 100}%`,
-			border: tasksLength > 0 ? "2px solid black" : "none"
+			border: tasksLength > 0 ? "3px solid lighten(#3f51b5,30)" : "none"
 		}
 		return (
-			<div className="limiter-container ">
-				<p>Time Scheduled</p>
-				<p>(press to schedule now)</p>
-				<div className="limiter" onClick={this._handleScheduleNow}>
+			<div className="limiter-container">
+				<div className="instructions">
+					<p>Time Scheduled</p>
+					<p>(press to schedule now)</p>
+				</div>
+				<div className="limiter hoverable" onClick={this._handleScheduleNow}>
 					<p>{tasksLength}</p>
 					<div className="tasks-length" style={limiterProgressStyle}></div>
 				</div>
@@ -195,15 +172,14 @@ const TaskContainer = React.createClass({
 	},
 	render: function(){
 		return (
-			<div className="task-container">
-				<div className="delete-this">
-					<form className="add-task hoverable" onSubmit={this._handleSubmit}>
-						<input className="task-name" name="taskName"  placeholder="Task Name" required />
+			<div className="task-container z-depth-4">
+				<div className="add-task-form">
+					<form className="add-task input-field" onSubmit={this._handleSubmit}>
+						<input className="task-name" name="taskName" placeholder="Task Name" required />
 						<input className="task-length" name="taskLength" placeholder="Time" type="number" step="5" min="5" max="30"/>
-						<button className="btn-floating waves-effect waves-light green"><i className="material-icons">add</i></button>
+						<button className="add btn-floating waves-effect waves-light"><i className="material-icons">add</i></button>
 					</form>
 				</div>
-				<break></break>
 				<TaskList collection={this.props.collection}/>
 			</div>
 		)
@@ -230,7 +206,7 @@ const Task = React.createClass({
 			<li className="task collection-item">
 				<p className="task-name">{this.props.model.get("taskName")}</p>
 				<p className="task-length">{this.props.model.get("taskLength")}</p>
-				<button className="remove btn-floating waves-effect waves-light red" onClick={this._removeTask}><i className="material-icons">clear</i></button>
+				<button className="remove btn-floating waves-effect waves-light" onClick={this._removeTask}><i className="material-icons">clear</i></button>
 			</li>
 		)
 	}

@@ -1,11 +1,9 @@
 import React from 'react'
-import {Input,Row} from "react-materialize"
 import ACTIONS from '../actions'
 import UTILS from "../utils"
 import STORE from "../store"
 
-export const MaterialSelect = React.createClass({
-
+const MaterialSelect = React.createClass({
 	componentDidMount: function() {
 		this._$select()
 	},
@@ -24,24 +22,24 @@ export const MaterialSelect = React.createClass({
 				ACTIONS.fetchAvailability(e.target.value)
 			} else if (this.props.detailProp === "time"){
 				ACTIONS.setDetail(this.props.detailProp,e.target.value)
-				ACTIONS.showConfirmDetails()
+				ACTIONS.showDetails(e.target.value)
 			}
 		})
 	},
 
 	render: function(){
 		return (
-				<div style={{display: this.props.showing ? "block" : "none"}}>
-				    <select>
-				      <option defaultValue="">No {this.props.detailProp} selected</option>
-				      {this.props.displayValues.map((rawVal,i) => <option
-				      	value={this.props.optionValues[i]}
-				      	key={i}
-				      	>{rawVal}</option>
-				      )}
-				    </select>
-				  </div>
-			)
+			<div style={{display: this.props.showing ? "block" : "none"}}>
+			    <select>
+			      <option defaultValue="">No {this.props.detailProp} selected</option>
+			      {this.props.displayValues.map((rawVal,i) => <option
+			      	value={this.props.optionValues[i]}
+			      	key={i}
+			      	>{rawVal}</option>
+			      )}
+			    </select>
+			</div>
+		)
 	}
 })
 

@@ -3,6 +3,7 @@ import {TaskCollection, TaskModel, ScheduledEventsCollection} from "./models/dat
 import User from "./models/userModel"
 import $ from 'jquery'
 import UTILS from "./utils"
+import toastr from "toastr"
 /*TODO FROM PRESENTATION:
 add tasks, if it exceeds thirty, schedule everything but the last task
 user preferences for when you are available
@@ -28,7 +29,7 @@ const ACTIONS = {
 				ACTIONS.countTasksToBeScheduled()
 			})
 			.fail((err) => {
-				alert("Error when adding task")
+				toastr.error("Error when adding task")
 				
 			})
 	},
@@ -48,7 +49,7 @@ const ACTIONS = {
 
 			taskModel.save()
 				 	 .fail((err)=>{
-				 		alert("Error when updating task")
+				 		toastr.error("Error when updating task")
 				 		
 				 	  })
 		}
@@ -75,42 +76,38 @@ const ACTIONS = {
 		var coll = STORE._get("taskCollection"),
 			limiter = STORE._get("scheduleLimiter"),
 			lengthIfTaskAdded = 0,
-			toBeScheduledArr = []
+			toBeScheduledArr = [],
+			propsToUpdate = {}
 
 		for(var i = 0; i < coll.models.length; i++){
 			lengthIfTaskAdded += coll.models[i].get("taskLength")
 
 			if(lengthIfTaskAdded > limiter) {
-				return STORE._set({
-					showPopUp: true,
-					tasksToBeScheduled: toBeScheduledArr
-				})
+				propsToUpdate["showPopUp"] = true
 			} else if (lengthIfTaskAdded === limiter) {
 				toBeScheduledArr.push(coll.models[i])
-				return STORE._set({
-					showPopUp: true,
-					tasksToBeScheduled: toBeScheduledArr
-				})
+				propsToUpdate["showPopUp"] = true
 			} else {
 				toBeScheduledArr.push(coll.models[i])
 			}
 		}
-		STORE._set("tasksToBeScheduled",toBeScheduledArr)
+		propsToUpdate["tasksToBeScheduled"] = toBeScheduledArr
+		STORE._set(propsToUpdate)
 	},
 	createEvent: function() {
-		
-		var eventTime = STORE._get("schedulingDetails"),
-			startTime = new Date(eventTime["time"]),
+		var whatEvent = this.getTasksToBeScheduledString(),
+			whenEvent = STORE._get("schedulingDetails"),
+			startTime = new Date(whenEvent["time"]),
 			endTime = UTILS.addMinutes(startTime,STORE._get("scheduleLimiter"))
 
-		$.getJSON(`/google/calendar/create?what=${eventTime["whatEvent"]}&start=${startTime.toISOString()}&end=${endTime.toISOString()}&token=${localStorage.getItem('calendar_token')}`)
+		$.getJSON(`/google/calendar/create?what=${whatEvent}&start=${startTime.toISOString()}&end=${endTime.toISOString()}&token=${localStorage.getItem('calendar_token')}`)
 			.then(
 				function() {
-					alert(`Tasks scheduled on ${startTime.getMonth() % 12 + 1}/${startTime.getDate()}`)
+					toastr.success(`Tasks scheduled on ${startTime.getMonth() % 12 + 1}/${startTime.getDate()} at ${UTILS.formatTime(startTime)}`)
 					ACTIONS.changeTasksToScheduled()
 				},
 				function(err) {
-					alert("Error scheduling event")
+					toastr.error("Error scheduling event")
 					
 				}
 			)
@@ -129,7 +126,6 @@ const ACTIONS = {
 	    		token: localStorage.getItem('calendar_token')
 	    	}
 	    }).done((resp)=> {
-
 	    	// pass date and response of occupied times and filter for available time blocks
 	    	var openTimes = ACTIONS.getOpenTimeBlocks(date,resp)
 	    	STORE._set({
@@ -138,7 +134,7 @@ const ACTIONS = {
 	    	})
 	    })
 	      .fail((err)=> {
-	      	alert("Error retrieving tasks")
+	      	toastr.error("Error retrieving tasks")
 	      	
 	    })
 	},
@@ -149,19 +145,21 @@ const ACTIONS = {
 				taskStatus: "unscheduled"
 			}
 		})	 .done(()=> ACTIONS.countTasksToBeScheduled())
-			 .fail(()=> alert("Error fetching tasks"))
+			 .fail(()=> toastr.error("Error fetching tasks"))
 	},
 	//TODO: change this so you have the option to schedule up to start/end time.
 	//Ex: you have something at 7. You should be able to schedule something from 6:30-7
 	filterAvailableBlocks: function(dateToSchedule,scheduledTimes) {
 		var potentialTimes = ACTIONS.getPotentialTimes(dateToSchedule)
 		var filteredTimes = potentialTimes.filter((time)=> {
-			for(var i = 0; i < scheduledTimes.length; i++){
-				if (time >= scheduledTimes[i].start && 
-					time <= scheduledTimes[i].end ||
-					time < new Date()){
-					return false
-				} 
+			if (time < new Date()){
+				return false
+			} else {
+				for(var i = 0; i < scheduledTimes.length; i++){
+					if(time >= scheduledTimes[i].start && time <= scheduledTimes[i].end){
+						return false
+					} 
+				}
 			}
 			return true
 		})
@@ -182,8 +180,8 @@ const ACTIONS = {
 	//Get thirty min increments from when you set startDate to when you set endDate
 	getPotentialTimes: function(date) {
 		//Need to change this based on user preference
-		var startDate = new Date(new Date(date).setHours(15,0,0,0))
-		var endDate = new Date(date).setHours(20,0,0,0)
+		var startDate = new Date(new Date(date).setHours(0,0,0,0))
+		var endDate = new Date(date).setHours(14,0,0,0)
 		return UTILS.getThirtyMinIncrements(startDate,endDate)
 	},
 	// string used to add to calendar
@@ -204,18 +202,20 @@ const ACTIONS = {
 	removeTask: function(taskModel) {
 		taskModel.destroy()
 				 .fail((err) => {
-				 	alert("Error when removing task")
+				 	toastr.error("Error when removing task")
 				 	
 				 })
 	},
 	setDetail: function(prop,val) {
 		var schedulingDetails = STORE._get('schedulingDetails')
+		if(!schedulingDetails.hasOwnProperty(prop) && val !== schedulingDetails["day"])
 			schedulingDetails[prop] = val
 	},
-	showConfirmDetails: function() {
-		STORE._set({
-			showConfirm: true
-		})
+	showDetails: function(val){
+		if(val !== STORE._get("schedulingDetails")["day"]) {
+			STORE._set("showConfirm",true)
+		}
 	}
+
 }
 export default ACTIONS

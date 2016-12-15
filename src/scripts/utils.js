@@ -23,11 +23,13 @@ const UTILS = {
 
 	// change DateTime object to Hour:Minutes
 	formatTime: function(date) {
-		var hours = new Date(date).getHours() % 12
+		var rawHours = new Date(date).getHours()
 		var minutes = new Date(date).getMinutes()
+		var amOrPm = rawHours < 12 ? "AM" : "PM"
 		
 		if(minutes === 0) minutes = minutes + "0"
-		return `${hours}:${minutes}`
+		var hours = rawHours % 12 === 0 ? 12 : rawHours % 12
+		return `${hours}:${minutes} ${amOrPm}`
 	},
 	getCurrentUser: function() {
 		return localStorage.getItem('userName')

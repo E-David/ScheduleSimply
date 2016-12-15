@@ -1,30 +1,72 @@
 @import "./_reset";
 @import "../../node_modules/materialize-css/sass/materialize.scss";
+@import url('https://fonts.googleapis.com/css?family=Montserrat|Roboto');
 
-$primary-color: #9fa8da indigo lighten-3;
-$accent-color: #e8eaf6 indigo lighten-5;
-$bg-color: #283593 indigo darken-3;
-$text-color: #8c9eff;
+$primary-color: #e8eaf6;
+$accent-color: #5d4037;
+$bg-color: #3f51b5;
+$text-color: #6E7587;
+$font-head: 'Montserrat', sans-serif;
+$font-body: 'Roboto', sans-serif;
 
 * {
 	box-sizing: border-box;
 }
 
 .container {
-	max-width: 100vw;
-	width: 100vw;
-	height: 100vh;
+	max-width: 100%;
+	width: 100%;
+	overflow: hidden;
+	min-height: 100vh;
+	background: $bg-color;
+	background: linear-gradient(lighten($bg-color,10), $bg-color);
+	color: $text-color;
+	padding-bottom: 6rem;
+	.login-view {
+		text-align: center;
+		margin: auto;
+		color: $primary-color;
+		.login-wrapper {
+			margin: auto;
+			h3 {
+				padding-bottom: 0.5rem;
+			}
+			.btn {
+				background-color: $primary-color;
+				color: $bg-color;
+				margin: auto;
+			}
+		}
+	}
 	header {
 		.header-wrapper {
-			width: 768px;
-			margin: 0 auto;
+			width: 100%;
+			padding: 2% 4%;
+			border-bottom: 1px solid $primary-color;
+			color: $primary-color;
+			.logo {
+				margin: 0;
+				font-family: $font-head;
+
+			}
 			.user-details {
 				text-align: right;
-				.logout {
-					line-height: 1rem;
-					span {
-						padding-right: 5px;
-					}
+				font-size: 1rem;
+				font-family: $font-body;
+				h6 {
+					padding-bottom: 15px;
+				}
+				.logout-button {
+					padding-left: 10px;
+					transition: 0.5s all ease;
+				}
+				.logout-button:hover {
+					color: lighten($text-color,30);
+					cursor: pointer;
+				}
+				.logout-button:active {
+					color: lighten($text-color,10);
+					cursor: pointer;
 				}
 			}
 		}
@@ -34,76 +76,97 @@ $text-color: #8c9eff;
 			  clear: both;
 		}
 	}
-	.login-view {
-		text-align: center;
-		margin: 0 auto;
-		width: 100%;
-		.delete {
-			margin: auto;
-
-		}
-	}
 	.schedule-app {
 		margin: 0 auto;
 		.schedule-pop-up {
 			position: absolute;
-			top: 8%;
+			top: 19%;
 			left: 50%;
 			transform: translateX(-50%);
 			transition: 0.2s all ease-in-out;
 			z-index: 5;
 			background-color: white;
+			font-family: $font-body;
+			.select-dropdown, .select-dropdown span  {
+				color: $bg-color;
+				font-family: $font-body;
+			}
 			.date-select {
-				padding: 1% 2%;
+				margin: auto;
+				padding: 1.5rem;
 				display: inline-block;
 				width: 180px;
-				height: 67px;
+				height: 100px;
 				text-align: left;
+				p {
+					text-align: left;
+					color: $text-color;
+				}
 			}
 			.time-select {
 				margin: auto;
-				padding: 1% 2%;
+				padding: 1.5rem;
 				display: inline-block;
 				width: 180px;
-				height: 67px;
+				height: 100px;
 				text-align: right;
+				transition: 1s all ease;
+				p {
+					text-align: right;
+					color: $text-color;
+				}
 			}
-			p {
-				text-align: center;
-			}
-			.details {
-				margin: auto;
-				padding-top: 30px;
+			.confirm {
+				padding: 1rem;
+				margin: 0;
+				transition: 1s all ease;
+				p {
+					text-align: center;
+				}
 			}
 			.schedule {
-				margin: auto;
-				padding-top: 30px;
-				width: 30%;
+				text-align: center;
+				transition: 1s all ease;
+				button {
+					background-color: $bg-color;
+					color: $primary-color;
+				}
 			}
 		}
 		.body-container {
 			margin: 0 auto;
 			.limiter-container {
 				text-align: center;
-				margin: 10px auto 50px auto;
-				p {
-					font-size: 1rem;
-					margin: 0;
-					line-height: 1.5rem;
-				}
-				p:first-child {
-					font-size: 1.5rem;
+				margin: 50px auto;
+				.instructions{
+					padding-bottom: 15px;
+					p {
+						font-size: 1rem;
+						margin: 0;
+						line-height: 1.5rem;
+						font-family: $font-body;
+						color: $primary-color;
+					}
+					p:first-child {
+						font-size: 1.5rem;
+						padding-bottom: 0.5rem;
+					}
 				}
 				.limiter {
 				    height: 150px;
 				    width: 150px;
-				    border: 2px solid black;
 				    border-radius: 60%;
 				    margin: auto;
 				    position: relative;
+				    background-color: #e8eaf6;
+				    z-index: 1;
 			    	p {	
+			    		color: $text-color;
 						font-size: 6rem;
 						line-height: 150px;
+						z-index: 2;
+						font-family: $font-head;
+						transition: 1s ease-in-out all;
 					}
 					.tasks-length {
 					    border-radius: 60%;
@@ -112,6 +175,8 @@ $text-color: #8c9eff;
 					    left: 50%;
 					    transform: translate(-50%,-50%);
 					    transition: 1s ease-in-out all;
+					    background-color: lighten(#3f51b5,30);
+					    z-index: -1;
 					}
 				}
 				.limiter:hover {
@@ -122,38 +187,51 @@ $text-color: #8c9eff;
 				max-width: 768px;
 				margin: 0 auto;
 				position: relative;
-				.delete-this {
-					margin-bottom: 50px;
-				}
-				.add-task {
-					z-index: 1000;
+				font-family: $font-body;
+				transition: 1s ease all;
+				.add-task-form {
+					color: $primary-color;
+					position: relative;
+					padding: 15px 0px;
 					input {
-						position: absolute;
-						z-index: 1000;
 						font-size: 2rem;
 						padding: 1% 2%;
+						margin: 0;
 					}
 					.task-name {
-						top: 0;
-						left: 0;
 						width: 70%;
 					}
 					.task-length {
-						top: 0;
-						right: 50px;
+						position: absolute;
+						top: 50%;
 						width: 100px;
+						transform: translateY(-50%);
 						text-align: center;
 						margin: 0 15px;
 					}
-					button {
+					.add {
 						position: absolute;
-						top: 5px;
-						right: 5px;
+						top: 50%;
+						right: 10px;
+						transform: translateY(-50%);
 						line-height: 3rem;
+						background-color: $primary-color;
+						i {
+							color: $bg-color;
+						}
+					}
+					.add:hover {
+							background-color: darken($primary-color,10);
+					}
+					.add:active {
+							background-color: darken($primary-color,30);
+					}
+					input:not([type]):focus:not([readonly]), input[type=number]:focus:not([readonly]) {
+				    	border-bottom: 1px solid $primary-color;
+				    	box-shadow: 0 1px 0 0 $primary-color;
 					}
 				}
 				.task-list {
-					margin-top: 3rem;
 					border: none;
 					.task {
 						max-width: 768px;
@@ -175,27 +253,32 @@ $text-color: #8c9eff;
 							top: 0;   
     						right: 74px;
      						padding-top: 20px;
+     						padding-left: 20px;
 							width: 100px;
 							text-align: center;
 							margin: 0 15px;
 						}
 						.remove {
 							position: absolute;
-							top: 5px;
-							right: 5px;
-							z-index: 1;
+							top: 50%;
+							right: 10px;
+							transform: translateY(-50%);
+							color: $primary-color;
+							background-color: #5c6bc0;
+						}
+						.remove:hover {
+							background-color: darken(#5c6bc0,10);
+						}
+						.remove:active {
+							background-color: darken(#5c6bc0,30);
 						}
 					}
-					.task:first-child {
-						margin-top: 100px;
-					}
-
 				}
 			}
 		}
 		.darken-bg {
 			transition: 0.5s ease all;
-			width: 100vw;
+			width: 100%;
 			height: 100vh;
 			background-color: black;
 			position: fixed;
@@ -206,138 +289,3 @@ $text-color: #8c9eff;
 		}
 	}
 }
-
-// 	.schedule-app {
-// 		position: relative;
-// 		.logout {
-// 			position: absolute;
-// 			top: 0;
-// 			right: 0;
-// 			margin: 0;
-// 		}
-// 			form {
-// 				margin: 10px auto 0px auto;
-// 				width: 80%;
-// 				input {
-// 					font-size: 36px;
-// 					display: inline-block;
-// 				}
-// 				input:first-child {
-// 					width: 70%;
-// 					margin-left: 20px;
-// 				}
-// 				input:nth-child(2){
-// 					width:15%;
-// 					text-align: center;
-// 				}
-// 				button {
-// 					height: 48px;
-// 					width: 72px;
-// 					font-size: 16.5px;
-// 					margin: auto;
-// 					margin-left: 10px;
-// 					background-color: #6495ED;
-// 					color: white;
-// 					vertical-align: top;
-// 					font-weight: bold;
-// 				}
-// 				button:hover {
-// 					background-color: lighten(#6495ED,10);
-// 				}
-// 				button:active {
-// 					background-color: darken(#6495ED,10);
-// 				}
-// 			}
-// 			.schedule-pop-up {
-// 				transition: 1s ease all;
-// 				width: 63%;
-// 				background-color: white;
-// 				padding: 0;
-// 				position: absolute;
-// 				top: 20%;
-// 				left: 50%;
-// 				transform: translate(-50%,-50%);
-// 				z-index: 2;
-// 				.date-display{
-// 					display: inline-block;
-// 					width: 9%;
-// 					margin: 0;
-// 					button {
-// 						font-size: 14px;
-// 					}
-// 				}
-// 				.time-display {
-// 					button {
-// 						margin: 1% 2%;
-// 						font-size: 12px;
-// 					}
-// 				}
-// 			}
-// 			#darken-bg {
-// 				transition: 1s ease all;
-// 				width: 100%;
-// 				height: 100vh;
-// 				background-color: black;
-// 				position: fixed;
-// 				top: 0;
-// 				left: 0;
-// 				z-index: 1;
-// 				opacity: 0.5;
-// 			}
-
-// 		.task-container {
-// 			margin-top: 10px;
-// 			margin-bottom: 20px;
-// 			width: 100%;
-// 			background-color:  #c0c0c0;
-// 			position: relative;
-// 			.task {
-// 				width: 80%;
-// 				background-color:  #c0c0c0;
-// 				margin: auto;
-// 				height: auto;
-// 				display: table;
-// 				border: 0.5px solid black;
-// 				border-top: 0px;
-// 				position: relative;
-// 				span{
-// 					font-size: 36px;
-// 					padding: 1% 2%;
-// 				}
-// 				span:first-child {
-// 					display: table-cell;
-// 					text-align: left;
-// 				}
-// 				span:nth-child(2) {
-// 					float: right;
-// 				}
-// 				button {
-// 					position: absolute;
-// 					left: 101%;
-// 					font-size: 12px;
-// 				}
-
-// 			}
-// 			.task:first-child {
-// 				border-top: 0.5px solid black;
-// 			}
-// 		}
-
-// 	}
-// 	.login-container{
-// 		position: absolute;
-// 		top: 50%;
-// 		left: 50%;
-// 		transform: translate(-50%,-50%);
-// 		background-color: #c0c0c0;
-// 		padding: 3%;
-// 	}
-// 	.register-container {
-// 		position: absolute;
-// 		top: 20%;
-// 		left: 50%;
-// 		transform: translate(-50%,-50%);
-// 		background-color: #c0c0c0;
-// 		padding: 3%;
-// 	}
-// }
