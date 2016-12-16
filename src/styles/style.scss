@@ -50,16 +50,13 @@ $font-body: 'Roboto', sans-serif;
 	header {
 		.header-wrapper {
 			width: 100%;
-			padding: 2% 4%;
 			border-bottom: 1px solid $primary-color;
 			color: $primary-color;
 			.logo {
-				margin: 0;
 				font-family: $font-head;
-
+				padding-bottom: 15px;
 			}
 			.user-details {
-				text-align: right;
 				font-size: 1rem;
 				font-family: $font-body;
 				h6 {
@@ -87,6 +84,9 @@ $font-body: 'Roboto', sans-serif;
 	}
 	.schedule-app {
 		margin: 0 auto;
+		header {
+			padding-bottom: 30px;
+		}
 		.make-visible {
 			transition: 0.3s all ease-in-out;
 			visibility: visible;
@@ -103,7 +103,6 @@ $font-body: 'Roboto', sans-serif;
 		}
 		.schedule-pop-up {
 			position: absolute;
-			top: 19%;
 			left: 50%;
 			transform: translateX(-50%);
 			z-index: 5;
@@ -117,8 +116,8 @@ $font-body: 'Roboto', sans-serif;
 				margin: auto;
 				padding: 1.5rem;
 				display: inline-block;
-				width: 180px;
-				height: 100px;
+				width: 160px;
+				height: 110px;
 				text-align: left;
 				p {
 					text-align: left;
@@ -129,8 +128,8 @@ $font-body: 'Roboto', sans-serif;
 				margin: auto;
 				padding: 1.5rem;
 				display: inline-block;
-				width: 180px;
-				height: 100px;
+				width: 160px;
+				height: 110px;
 				text-align: right;
 				p {
 					text-align: right;
@@ -146,6 +145,7 @@ $font-body: 'Roboto', sans-serif;
 			}
 			.schedule {
 				text-align: center;
+				padding-bottom: 1rem;
 				button {
 					background-color: $bg-color;
 					color: $primary-color;
@@ -156,7 +156,8 @@ $font-body: 'Roboto', sans-serif;
 			margin: 0 auto;
 			.limiter-container {
 				text-align: center;
-				margin: 50px auto;
+				margin: 20px auto;
+				padding-bottom: 20px;
 				.instructions{
 					padding-bottom: 15px;
 					p {
@@ -203,7 +204,6 @@ $font-body: 'Roboto', sans-serif;
 				}	
 			}
 			.task-container {
-				max-width: 768px;
 				margin: 0 auto;
 				position: relative;
 				font-family: $font-body;
@@ -211,28 +211,13 @@ $font-body: 'Roboto', sans-serif;
 				.add-task-form {
 					color: $primary-color;
 					position: relative;
-					padding: 15px 0px;
 					input {
-						font-size: 2rem;
-						padding: 1% 2%;
-						margin: 0;
-					}
-					.task-name {
-						width: 70%;
+						margin-top: 0;
 					}
 					.task-length {
-						position: absolute;
-						top: 50%;
 						width: 100px;
-						transform: translateY(-50%);
-						text-align: center;
-						margin: 0 15px;
 					}
 					.add {
-						position: absolute;
-						top: 50%;
-						right: 10px;
-						transform: translateY(-50%);
 						line-height: 3rem;
 						background-color: $primary-color;
 						i {
@@ -253,35 +238,14 @@ $font-body: 'Roboto', sans-serif;
 				.task-list {
 					border: none;
 					.task {
-						max-width: 768px;
 						margin: auto;
 						position: relative;
-						.task-name, .task-length {
-							font-size: 2rem;
-						}
 						.task-name {
 							display: inline-block;
 							padding: 1% 2%;
-							font-size: 2rem;
-							width: 75%;
-							line-height: 2rem;
 							margin-bottom: 5px;
 						}
-						.task-length {
-							position: absolute;
-							top: 0;   
-    						right: 74px;
-     						padding-top: 20px;
-     						padding-left: 20px;
-							width: 100px;
-							text-align: center;
-							margin: 0 15px;
-						}
 						.remove {
-							position: absolute;
-							top: 50%;
-							right: 10px;
-							transform: translateY(-50%);
 							color: $primary-color;
 							background-color: #5c6bc0;
 						}
@@ -304,6 +268,161 @@ $font-body: 'Roboto', sans-serif;
 			left: 0;
 			opacity: 0.5;
 			z-index: 4;
+		}
+	}
+	
+}
+@media (min-width: 716px) {
+	.header-wrapper {
+		padding: 2% 4%;
+	}
+	.logo {
+		margin: 0;
+		float: left;
+	}
+	.user-details {
+		float: right;
+		text-align: right;
+	}
+	.task-container {
+		max-width: 768px;
+		.add-task-form {
+			padding: 20px;
+			input {
+				font-size: 2rem;
+			}
+			.task-name {
+				width: 70%;
+				margin: 0;
+				padding: 1% 2%;
+				padding-right: 23px;
+			}
+			.task-length {
+				position: absolute;
+				top: 50%;
+				width: 100px;
+				transform: translateY(-50%);
+				text-align: center;
+				margin: 0;
+				margin-left: 15px;
+				padding: 1% 2%;
+			}
+			.add {
+				position: absolute;
+				top: 50%;
+				right: 15px;
+				transform: translateY(-50%);
+			}
+		}
+		.task {
+			max-width: 768px;
+			padding: 20px;
+			.task-name, .task-length {
+				font-size: 2rem;
+			}
+			.task-name {
+				width: 75%;
+				line-height: 3rem;
+			}
+			.task-length {
+				width: 100px;
+				position: absolute;
+				top: 50%;   
+				right: 74px;
+				transform: translateY(-50%);
+				padding-left: 20px;
+				text-align: center;
+				margin: 0 15px;
+			}
+			.remove {
+				position: absolute;
+				top: 50%;
+				right: 15px;
+				transform: translateY(-50%);
+			}
+		}
+	}
+
+}
+@media (max-width: 715px) {
+	.header-wrapper {
+		padding: 2rem 1rem;
+		.logo {
+			margin: 0 auto;
+			float: none;
+			text-align: center;
+			font-size: 3rem;
+		}
+		.user-details {
+			float: none;
+			text-align: center;
+		}
+	}
+	.task-container {
+		max-width: 320px;
+		.add-task-form {
+			padding: 0;
+			input {
+				font-size: 1.5rem;
+			}
+			.task-name {
+				width: 300px;
+				padding: 10px 0%;
+				padding-left: 20px;
+				margin: 0;
+			}
+			.task-length{
+				display: inline-block;
+				text-align: center;
+				padding: 10px 0%;
+				padding-left: 20px;
+				margin-right: 5px;
+			}
+			.task-length:placeholder-shown {
+				text-align: left;
+			}
+			.add {
+				position: absolute;
+			    left: 50%;
+			    bottom: 2rem;
+			    transform: translateX(-50%);
+			}
+		}
+		.task {
+			max-width: 320px;
+			.task-name, .task-length {
+				font-size: 1.5rem;
+			}
+			.task-name {
+				width: 250px;
+				line-height: 1.5rem;
+			}
+			.task-length {
+				position: absolute;
+				top: 12px;
+				right: 20px;
+				text-align: left;
+				line-height: 1.5rem
+			}
+			.remove {
+				display: block;
+				margin: auto;
+			}
+		}
+	}
+}
+@media (max-width: 380px) {
+	.login-wrapper {
+		h1 {
+			font-size: 3rem;
+		}
+		h3 {
+			font-size: 2rem;
+		}
+	}
+	.header-wrapper {
+		.logo {
+			font-size: 2.5rem;
 		}
 	}
 }

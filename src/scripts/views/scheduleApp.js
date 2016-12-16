@@ -27,8 +27,8 @@ const ScheduleApp = React.createClass({
 	},
 	render: function() {
 		var popUpStyle = {
-			width: this.state.showTime ? "360px" : "180px",
-			height: this.state.showConfirm ? "220px" : "120px"
+			width: this.state.showTime ? "320px" : "180px",
+			height: this.state.showConfirm ? "240px" : "120px"
 		}
 		var popUpShowClass = this.state.showPopUp ? "make-visible" : "make-hidden"
 		var bgShowClass = this.state.showPopUp ? "make-visible" : "make-hidden"
@@ -54,8 +54,8 @@ const Header = React.createClass({
 		return (
 			<header>
 				<div className="header-wrapper group">
-					<h2 className="logo left">ScheduleSimply</h2>
-					<div className="user-details right">
+					<h2 className="logo">ScheduleSimply</h2>
+					<div className="user-details">
 						<h6>{`Signed in as ${UTILS.getCurrentUser()}`}</h6>
 						<div className="logout">
 							<span>Not you?</span>
@@ -175,7 +175,7 @@ const TaskContainer = React.createClass({
 		return (
 			<div className="task-container z-depth-4">
 				<div className="add-task-form">
-					<form className="add-task input-field" onSubmit={this._handleSubmit}>
+					<form className="add-task" onSubmit={this._handleSubmit}>
 						<input className="task-name" name="taskName" placeholder="Task Name" required />
 						<input className="task-length" name="taskLength" placeholder="Time" type="number" step="5" min="5" max="30" required/>
 						<button className="add btn-floating waves-effect waves-light"><i className="material-icons">add</i></button>
