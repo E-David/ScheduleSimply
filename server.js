@@ -35,6 +35,7 @@ let User = require('./db/schema.js').User
 // =========
 const app = express()
 const PORT = process.env.PORT || 3000
+console.log(PORT)
 app.set('port', PORT)
 
 // =========
