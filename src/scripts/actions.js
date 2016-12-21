@@ -181,8 +181,8 @@ const ACTIONS = {
 	//Get thirty min increments from when you set startDate to when you set endDate
 	getPotentialTimes: function(date) {
 		//Need to change this based on user preference
-		var startDate = new Date(new Date(date).setHours(15,0,0,0))
-		var endDate = new Date(date).setHours(21,0,0,0)
+		var startDate = new Date(new Date(date).setHours(10,0,0,0))
+		var endDate = new Date(date).setHours(20,0,0,0)
 		return UTILS.getThirtyMinIncrements(startDate,endDate)
 	},
 	// string used to add to calendar

@@ -156,7 +156,6 @@ $font-body: 'Roboto', sans-serif;
 			margin: 0 auto;
 			.limiter-container {
 				text-align: center;
-				margin: 20px auto;
 				padding-bottom: 20px;
 				.instructions{
 					padding-bottom: 15px;
@@ -173,8 +172,6 @@ $font-body: 'Roboto', sans-serif;
 					}
 				}
 				.limiter {
-				    height: 150px;
-				    width: 150px;
 				    border-radius: 60%;
 				    margin: auto;
 				    position: relative;
@@ -182,8 +179,7 @@ $font-body: 'Roboto', sans-serif;
 				    z-index: 1;
 			    	p {	
 			    		color: $text-color;
-						font-size: 6rem;
-						line-height: 150px;
+						font-size: 5rem;
 						z-index: 2;
 						font-family: $font-head;
 						transition: 1s ease-in-out all;
@@ -284,6 +280,19 @@ $font-body: 'Roboto', sans-serif;
 		float: right;
 		text-align: right;
 	}
+	.body-container {
+		.limiter-container {
+			margin: 20px auto;
+			.limiter {
+				height: 150px;
+				width: 150px;
+				p {
+					line-height: 150px;
+				}
+			}
+		}
+	}
+	//Future change for responsiveness: fixed margin, no width OR max-width 680px
 	.task-container {
 		max-width: 768px;
 		.add-task-form {
@@ -356,6 +365,18 @@ $font-body: 'Roboto', sans-serif;
 		.user-details {
 			float: none;
 			text-align: center;
+		}
+	}
+	.body-container {
+		.limiter-container {
+			margin: 0px auto;
+			.limiter {
+				height: 125px;
+				width: 125px;
+				p {
+					line-height: 125px;
+				}
+			}
 		}
 	}
 	.task-container {
