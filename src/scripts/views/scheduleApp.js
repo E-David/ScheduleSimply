@@ -4,6 +4,7 @@ import ACTIONS from "../actions"
 import User from "../models/userModel"
 import UTILS from "../utils"
 import MaterialSelect from './materialSelect'
+import toastr from "toastr"
 
 const ScheduleApp = React.createClass({
 	_bgClick: function() {
