@@ -4,18 +4,7 @@ import User from "./models/userModel"
 import $ from 'jquery'
 import UTILS from "./utils"
 import toastr from "toastr"
-/*TODO FROM PRESENTATION:
-add tasks, if it exceeds thirty, schedule everything but the last task
-user preferences for when you are available
-responsive web design
-refresh token***
-WHEN TO CHECK??
-feedback for what you're doing now
-when presenting, say what happens once you've added something to google
-popup if you try to add something. Field does't empty, but pop up asks if you want to schedule now
-more than 30
-prepare for worst case scnario
-*/
+
 const ACTIONS = {
 	//add task to STORE and save to database. Added model triggers "update" for STORE re-render
 	addTask: function(userInputObj) {

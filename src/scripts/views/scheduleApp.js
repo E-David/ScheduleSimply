@@ -139,7 +139,7 @@ const Limiter = React.createClass({
 		if(ACTIONS.countTasksLength() > 0) {
 			STORE._set("showPopUp",true)
 		}  else {
-			toastr.error("Add a task below before scheduling")
+			toastr.error("No tasks to schedule").css("width","auto")
 		}
 	},
 	render: function() {
