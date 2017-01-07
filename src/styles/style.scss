@@ -354,6 +354,11 @@ $font-body: 'Roboto', sans-serif;
 
 }
 @media (max-width: 715px) {
+	.login-wrapper {
+		h1 {
+			font-size: 3.75rem;
+		}
+	}
 	.header-wrapper {
 		padding: 2rem 1rem;
 		.logo {

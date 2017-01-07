@@ -135,7 +135,11 @@ const BodyContainer = React.createClass({
 
 const Limiter = React.createClass({
 	_handleScheduleNow: function() {
-		STORE._set("showPopUp",true)
+		if(ACTIONS.countTasksLength() > 0) {
+			STORE._set("showPopUp",true)
+		}  else {
+			toastr.error("Add a task below before scheduling")
+		}
 	},
 	render: function() {
 		var tasksLength = ACTIONS.countTasksLength() > 30 ? 30 : ACTIONS.countTasksLength()
@@ -177,7 +181,7 @@ const TaskContainer = React.createClass({
 				<div className="add-task-form">
 					<form className="add-task" onSubmit={this._handleSubmit}>
 						<input className="task-name" name="taskName" placeholder="Task Name" required />
-						<input className="task-length" name="taskLength" placeholder="Time" type="number" step="5" min="5" max="30" required/>
+						<input className="task-length" name="taskLength" placeholder="Mins" type="number" step="5" min="5" max="30" required/>
 						<button className="add btn-floating waves-effect waves-light"><i className="material-icons">add</i></button>
 					</form>
 				</div>
