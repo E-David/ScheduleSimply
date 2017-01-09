@@ -6,7 +6,7 @@ import UTILS from "./utils"
 import toastr from "toastr"
 
 const ACTIONS = {
-	//add task to STORE and save to database. Added model triggers "update" for STORE re-render
+	//add task to STORE and save to database. The added model triggers "update" for STORE re-render
 	addTask: function(userInputObj) {
 		//adds unique user id to task in order to show only user specific tasks
 		userInputObj["userName"] = UTILS.getCurrentUser()

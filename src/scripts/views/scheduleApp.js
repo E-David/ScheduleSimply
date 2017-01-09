@@ -77,7 +77,7 @@ const SchedulePopUp = React.createClass({
 	_showDetails: function() {
 		if(this.props.showConfirm){
 			var details = new Date(this.props.schedulingDetails["time"])
-			return `Schedule tasks below on ${UTILS.formatDate(details)} at ${UTILS.formatTime(details)}?`
+			return `Schedule tasks on ${UTILS.formatDate(details)} at ${UTILS.formatTime(details)}?`
 		}
 	},
 	render: function(){
@@ -95,6 +95,10 @@ const SchedulePopUp = React.createClass({
 				<form onSubmit={this._handleSubmitEvent}>
 					<div className="date-select input-field">
 						<p className="left left-align">Schedule a day</p>
+						{/*
+							The select HTML tag for Materialize does not work as of 1/2016
+							MaterialSelect view is a workaround.
+						*/}
 						<MaterialSelect
 							showing={true}
 							displayValues={UTILS.getNextWeek().map(val=>UTILS.formatDate(val))} 
